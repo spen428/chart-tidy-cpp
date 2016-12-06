@@ -175,7 +175,7 @@ bool Chart::parse_note_section_line(const string& section, const string& line)
 
 bool is_note_section(const string& section)
 {
-    return (section == "EasySingle"
+	return (section == "EasySingle"
 	        || section == "MediumSingle"
 	        || section == "HardSingle"
 	        || section == "ExpertSingle"
