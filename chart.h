@@ -5,6 +5,8 @@
 
 #include "event.h"
 
+using namespace std;
+
 class Chart
 {
 	public:
@@ -14,27 +16,28 @@ class Chart
 		void print();
 
 		// [Song]
-		std::string name;
-		std::string artist;
-		std::string charter;
+		string name;
+		string artist;
+		string charter;
 		double offset; // TODO
 		int resolution; // TODO
-		std::string player2; // TODO
+		string player2; // TODO
 		int difficulty; // TODO
 		double previewStart; // TODO
 		double previewEnd; // TODO
-		std::string genre;
-		std::string mediaType;
-		std::string musicStream;
+		string genre;
+		string mediaType;
+		string musicStream;
 		// [SyncTrack]
-		std::vector<SyncTrackEvent> syncTrack;
+		vector<SyncTrackEvent> syncTrack;
 		// [Events]
-		std::vector<Event> events;
+		vector<Event> events;
 		// Note sections
-		std::map<std::string, std::multimap<uint32_t, NoteEvent>> noteSections;
+		map<string, multimap<uint32_t, NoteEvent>> noteSections;
 	private:
-		bool parse_song_line(std::string line);
-		bool parse_sync_track_line(std::string line);
-		bool parse_events_line(std::string line);
-		bool parse_note_section_line(std::string section, std::string line);
+		bool parse_song_line(const string& line);
+		bool parse_sync_track_line(const string& line);
+		bool parse_events_line(const string& line);
+		bool parse_note_section_line(const string& section,
+				const string& line);
 };

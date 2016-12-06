@@ -14,7 +14,7 @@
 using namespace std;
 
 void split_once(string& first, string& second, string str);
-bool is_note_section(string section);
+bool is_note_section(const string& section);
 
 Chart::Chart()
 {
@@ -40,7 +40,7 @@ bool Chart::read(char *fpath)
 		if (!in_block) {
 			if (section == "" && line.at(0) == '[') {
 				// Begin section header
-			    if (line.at(line.length() - 1) == ']') {
+				if (line.at(line.length() - 1) == ']') {
 					// Section header is on its own line, usual case
 					section = line.substr(1, line.length() - 2);
 					cerr << "SECTION HEADER: " << section << endl;
@@ -95,22 +95,21 @@ bool Chart::read(char *fpath)
  * whitespace from them. If `delim` is not found in `str`, `first` will equal
  * `str` after trimming and `second` will equal "".
  */
-void split_once(string& first, string& second,
-		string str, char delim)
+void split_once(string& first, string& second, const string& str, char delim)
 {
 	const auto idx = str.find_first_of(delim);
 	if (string::npos != idx) {
 		first = str.substr(0, idx);
 		second = str.substr(idx + 1);
 	} else {
-		first = str;
+		first = str.substr(0);
 		second = "";
 	}
 	boost::trim(first);
 	boost::trim(second);
 }
 
-bool Chart::parse_song_line(string line)
+bool Chart::parse_song_line(const string& line)
 {
 	string key;
 	string value;
@@ -138,19 +137,19 @@ bool Chart::parse_song_line(string line)
 	return true;
 }
 
-bool Chart::parse_sync_track_line(string line)
+bool Chart::parse_sync_track_line(const string& line)
 {
 	// TODO
 	return false;
 }
 
-bool Chart::parse_events_line(string line)
+bool Chart::parse_events_line(const string& line)
 {
 	// TODO
 	return false;
 }
 
-bool Chart::parse_note_section_line(string section, string line)
+bool Chart::parse_note_section_line(const string& section, const string& line)
 {
 	// TODO
 //	bool errors = false;
@@ -174,22 +173,22 @@ bool Chart::parse_note_section_line(string section, string line)
 	return false;
 }
 
-bool is_note_section(string section)
+bool is_note_section(const string& section)
 {
     return (section == "EasySingle"
-			|| section == "MediumSingle"
-			|| section == "HardSingle"
-			|| section == "ExpertSingle"
-			|| section == "HardDoubleGuitar"
-			|| section == "HardDoubleBass"
-			|| section == "HardEnhancedGuitar"
-			|| section == "HardCoopLead"
-			|| section == "HardCoopBass"
-			|| section == "Hard10KeyGuitar"
-			|| section == "HardDrums"
-			|| section == "HardDoubleDrums"
-			|| section == "HardVocals"
-			|| section == "HardKeyboard");
+	        || section == "MediumSingle"
+	        || section == "HardSingle"
+	        || section == "ExpertSingle"
+	        || section == "HardDoubleGuitar"
+	        || section == "HardDoubleBass"
+	        || section == "HardEnhancedGuitar"
+	        || section == "HardCoopLead"
+	        || section == "HardCoopBass"
+	        || section == "Hard10KeyGuitar"
+	        || section == "HardDrums"
+	        || section == "HardDoubleDrums"
+	        || section == "HardVocals"
+	        || section == "HardKeyboard");
 }
 
 #define BEGIN_SECTION(X) cout << "[" << X << "]" << endl << "{" << endl
