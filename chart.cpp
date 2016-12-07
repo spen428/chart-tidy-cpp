@@ -165,9 +165,16 @@ bool Chart::parse_events_line(const string& line)
 {
 	string key;
 	string value;
+
+	// Get time
 	split_once(key, value, line, '=');
 	int time = stoi(key);
-	// TODO
+
+	// Get event details
+	split_once(key, value, value, ' ');
+	if (key == "E") {
+		events.push_back(Event(time, value));
+	}
 	return false;
 }
 
