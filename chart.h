@@ -19,12 +19,12 @@ class Chart
 		string name;
 		string artist;
 		string charter;
-		double offset; // TODO
-		int resolution; // TODO
-		string player2; // TODO
-		int difficulty; // TODO
-		double previewStart; // TODO
-		double previewEnd; // TODO
+		double offset;
+		int resolution;
+		string player2;
+		int difficulty;
+		double previewStart;
+		double previewEnd;
 		string genre;
 		string mediaType;
 		string musicStream;

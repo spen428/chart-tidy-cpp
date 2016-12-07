@@ -121,15 +121,23 @@ bool Chart::parse_song_line(const string& line)
 	} else if (key == "Charter") {
 		charter = value;
 	} else if (key == "Offset") {
+		offset = stod(value);
 	} else if (key == "Resolution") {
+		resolution = stoi(value);
 	} else if (key == "Player2") {
+		player2 = value;
 	} else if (key == "Difficulty") {
+		difficulty = stoi(value);
 	} else if (key == "PreviewStart") {
+		previewStart = stod(value);
 	} else if (key == "PreviewEnd") {
+		previewEnd = stod(value);
 	} else if (key == "Genre") {
+		genre = value;
 	} else if (key == "MediaType") {
+		mediaType = value;
 	} else if (key == "MusicStream") {
-		return false; // TODO
+		musicStream = value;
 	} else {
 		cerr << "Unknown key: " << key << endl;
 		return false;
@@ -204,7 +212,7 @@ void Chart::print()
 	KV("Resolution", resolution);
 	KV("Player2", player2);
 	KV("Difficulty", difficulty);
-	KV("PreviewStart", previewStart);
+	KV("PreviewStart", previewStart); // TODO: How many d.p. are expected?
 	KV("PreviewEnd", previewEnd);
 	KV("Genre", genre);
 	KV("MediaType", mediaType);
