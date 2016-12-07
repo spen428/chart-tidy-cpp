@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "event.h"
@@ -33,7 +34,7 @@ class Chart
 		// [Events]
 		vector<Event> events;
 		// Note sections
-		map<string, map<uint32_t, vector<NoteEvent>>> noteSections;
+		unordered_map<string, map<uint32_t, vector<NoteEvent>>> noteSections;
 	private:
 		bool parse_song_line(const string& line);
 		bool parse_sync_track_line(const string& line);

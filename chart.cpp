@@ -181,9 +181,6 @@ bool Chart::parse_events_line(const string& line)
 
 bool Chart::parse_note_section_line(const string& section, const string& line)
 {
-	// Get the note event multimap, or create it if it doesn't exist
-    auto noteEvents = noteSections[section];
-
 	string key;
 	string value;
 
@@ -192,17 +189,18 @@ bool Chart::parse_note_section_line(const string& section, const string& line)
 	int time = stoi(key);
 
 	// Parse note
+	auto v = &noteSections[section][time];
 	split_once(key, value, value, ' ');
 	if (key == "E") { // "E" "some event"
 		// Track event
-		noteEvents[time].push_back(NoteEvent(time, value));
+		v->push_back(NoteEvent(time, value));
 		return true;
 	} else if (key == "N") { // "N" "5 0"
 		// Note
 		split_once(key, value, value, ' ');
 		int val = stoi(key);
 		int dur = stoi(value);
-		noteEvents[time].push_back(NoteEvent(time, val, dur));
+		v->push_back(NoteEvent(time, val, dur));
 		return true;
 	}
 	return false;
@@ -228,51 +226,50 @@ bool is_note_section(const string& section)
 
 #define BEGIN_SECTION(X) cout << "[" << X << "]" << endl << "{" << endl
 #define END_SECTION() cout << "}" << endl
-#define KV(X, Y) cout << '\t' << X << " = " << Y << endl
 void Chart::print()
 {
 	BEGIN_SECTION(SONG_SECTION);
-	KV("Name", name);
-	KV("Artist", artist);
-	KV("Charter", charter);
-	KV("Offset", offset);
-	KV("Resolution", resolution);
-	KV("Player2", player2);
-	KV("Difficulty", difficulty);
-	KV("PreviewStart", previewStart); // TODO: How many d.p. are expected?
-	KV("PreviewEnd", previewEnd);
-	KV("Genre", genre);
-	KV("MediaType", mediaType);
-	KV("MusicStream", musicStream);
+	cout << '\t' << "Name" << " = " << name << endl;
+	cout << '\t' << "Artist" << " = " << artist << endl;
+	cout << '\t' << "Charter" << " = " << charter << endl;
+	cout << '\t' << "Offset" << " = " << offset << endl;
+	cout << '\t' << "Resolution" << " = " << resolution << endl;
+	cout << '\t' << "Player2" << " = " << player2 << endl;
+	cout << '\t' << "Difficulty" << " = " << difficulty << endl;
+	// TODO: How many d.p. are expected?
+	cout << '\t' << "PreviewStart" << " = " << previewStart << endl;
+	cout << '\t' << "PreviewEnd" << " = " << previewEnd << endl;
+	cout << '\t' << "Genre" << " = " << genre << endl;
+	cout << '\t' << "MediaType" << " = " << mediaType << endl;
+	cout << '\t' << "MusicStream" << " = " << musicStream << endl;
 	END_SECTION();
 
 	BEGIN_SECTION(SYNC_TRACK_SECTION);
-	for (auto const evt: syncTrack) {
-		KV(evt.time, evt.value);
+	for (auto const& evt: syncTrack) {
+		cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << endl;
 	}
 	END_SECTION();
 
 	BEGIN_SECTION(EVENTS_SECTION);
-	for (auto const evt: events) {
-		KV(evt.time, evt.text);
+	for (auto const& evt: events) {
+		cout << '\t' << evt.time << " = E " << evt.text << endl;
 	}
 	END_SECTION();
 
 	for (auto const& e0: noteSections) {
-		cout << "okkkk " << endl;
 		auto section = e0.first;
 		auto map = noteSections[section];
 		BEGIN_SECTION(section);
 		for (auto const& e1: map) {
-			cout << "still ok " << endl;
 			auto time = e1.first;
 			auto noteEvents = map[time];
 			for (auto noteEvent: noteEvents) {
-				cout << '\t' << time << " + " << noteEvent.time << " = ";
+				cout << '\t' << noteEvent.time << " = ";
 				if (noteEvent.isEvent()) {
 					cout << "E " << noteEvent.text;
 				} else {
-					cout << "N " << noteEvent.value << " " << noteEvent.duration;
+					cout << "N " << noteEvent.value << " ";
+					cout << noteEvent.duration;
 				}
 				cout << endl;
 			}
