@@ -147,18 +147,36 @@ bool Chart::parse_song_line(const string& line)
 
 bool Chart::parse_sync_track_line(const string& line)
 {
-	// TODO
-	return false;
+	string key;
+	string value;
+
+	// Get time
+	split_once(key, value, line, '=');
+	int time = stoi(key);
+
+	// Get event details
+	split_once(key, value, value, ' ');
+	int val = stoi(value);
+	syncTrack.push_back(SyncTrackEvent(time, key, val));
+	return true;
 }
 
 bool Chart::parse_events_line(const string& line)
 {
+	string key;
+	string value;
+	split_once(key, value, line, '=');
+	int time = stoi(key);
 	// TODO
 	return false;
 }
 
 bool Chart::parse_note_section_line(const string& section, const string& line)
 {
+	string key;
+	string value;
+	split_once(key, value, line, '=');
+	int time = stoi(key);
 	// TODO
 //	bool errors = false;
 //	istringstream ss(line);
@@ -220,17 +238,28 @@ void Chart::print()
 	END_SECTION();
 
 	BEGIN_SECTION(SYNC_TRACK_SECTION);
-	// TODO
+	for (auto evt: syncTrack) {
+		KV(evt.time, evt.value);
+	}
 	END_SECTION();
 
 	BEGIN_SECTION(EVENTS_SECTION);
-	// TODO
+	for (auto evt: events) {
+		KV(evt.time, evt.text);
+	}
 	END_SECTION();
 
-	// TODO
-	//for (auto section: ...) {
+	//for (auto section: noteSections) {
 	//	BEGIN_SECTION(section);
-	//	KV(key, value);
+	//	for (auto noteEvent: section) {
+	//		cout << '\t' << noteEvent.time << " = ";
+	//		if (noteEvent.isEvent()) {
+	//			cout << "E " << noteEvent.text;
+	//		} else {
+	//			cout << "N " << noteEvent.value << " " << noteEvent.duration;
+	//		}
+	//		cout << endl;
+	//	}
 	//	END_SECTION();
 	//}
 }
