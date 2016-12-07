@@ -33,7 +33,7 @@ class Chart
 		// [Events]
 		vector<Event> events;
 		// Note sections
-		map<string, multimap<uint32_t, NoteEvent>> noteSections;
+		map<string, map<uint32_t, vector<NoteEvent>>> noteSections;
 	private:
 		bool parse_song_line(const string& line);
 		bool parse_sync_track_line(const string& line);

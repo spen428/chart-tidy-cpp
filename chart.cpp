@@ -174,35 +174,37 @@ bool Chart::parse_events_line(const string& line)
 	split_once(key, value, value, ' ');
 	if (key == "E") {
 		events.push_back(Event(time, value));
+		return true;
 	}
 	return false;
 }
 
 bool Chart::parse_note_section_line(const string& section, const string& line)
 {
+	// Get the note event multimap, or create it if it doesn't exist
+    auto noteEvents = noteSections[section];
+
 	string key;
 	string value;
+
+	// Get time
 	split_once(key, value, line, '=');
 	int time = stoi(key);
-	// TODO
-//	bool errors = false;
-//	istringstream ss(line);
-//	char prefix = line.at(0);
-//	if (prefix == 'N') {
-//		uint32_t value;
-//		uint32_t duration;
-//		ss >> prefix >> value >> duration;
-//		NoteEvent evt(time, value, duration);
-//		noteSections.insert(pair(time, evt));
-//	} else if (prefix == 'E') {
-//		string text;
-//		ss >> prefix >> text;
-//		return NoteEvent(time, text);
-//	} else {
-//		cerr << "Invalid note event string: " << line << endl;
-//		errors = true;
-//	}
-//	return !errors;
+
+	// Parse note
+	split_once(key, value, value, ' ');
+	if (key == "E") { // "E" "some event"
+		// Track event
+		noteEvents[time].push_back(NoteEvent(time, value));
+		return true;
+	} else if (key == "N") { // "N" "5 0"
+		// Note
+		split_once(key, value, value, ' ');
+		int val = stoi(key);
+		int dur = stoi(value);
+		noteEvents[time].push_back(NoteEvent(time, val, dur));
+		return true;
+	}
 	return false;
 }
 
@@ -245,28 +247,36 @@ void Chart::print()
 	END_SECTION();
 
 	BEGIN_SECTION(SYNC_TRACK_SECTION);
-	for (auto evt: syncTrack) {
+	for (auto const evt: syncTrack) {
 		KV(evt.time, evt.value);
 	}
 	END_SECTION();
 
 	BEGIN_SECTION(EVENTS_SECTION);
-	for (auto evt: events) {
+	for (auto const evt: events) {
 		KV(evt.time, evt.text);
 	}
 	END_SECTION();
 
-	//for (auto section: noteSections) {
-	//	BEGIN_SECTION(section);
-	//	for (auto noteEvent: section) {
-	//		cout << '\t' << noteEvent.time << " = ";
-	//		if (noteEvent.isEvent()) {
-	//			cout << "E " << noteEvent.text;
-	//		} else {
-	//			cout << "N " << noteEvent.value << " " << noteEvent.duration;
-	//		}
-	//		cout << endl;
-	//	}
-	//	END_SECTION();
-	//}
+	for (auto const& e0: noteSections) {
+		cout << "okkkk " << endl;
+		auto section = e0.first;
+		auto map = noteSections[section];
+		BEGIN_SECTION(section);
+		for (auto const& e1: map) {
+			cout << "still ok " << endl;
+			auto time = e1.first;
+			auto noteEvents = map[time];
+			for (auto noteEvent: noteEvents) {
+				cout << '\t' << time << " + " << noteEvent.time << " = ";
+				if (noteEvent.isEvent()) {
+					cout << "E " << noteEvent.text;
+				} else {
+					cout << "N " << noteEvent.value << " " << noteEvent.duration;
+				}
+				cout << endl;
+			}
+		}
+		END_SECTION();
+	}
 }
