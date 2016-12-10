@@ -1,6 +1,7 @@
 #include <iostream>
 #include <set>
 
+#include "fix.h"
 #include "event.h"
 
 Event::Event(uint32_t time, std::string text):
@@ -74,8 +75,15 @@ void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultan
 		// Durations are not equal, must be an extended sustain. Let's fix it
 		cerr << "Unequal note durations detected at time " << note.time << endl;
 		// TODO
+		// vector<Note> fixedNotes;
+		// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);
+		// // Add notes to map
+		// for (Note n: fixedNotes) {
+		// 	noteMap[n.time] = n;
+		// }
+		noteMap[note.time] = note;
+	} else {
+		// Add note to map
+		noteMap[note.time] = note;
 	}
-
-	// Finally, add note to map
-	noteMap[note.time] = note;
 }
