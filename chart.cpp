@@ -7,6 +7,9 @@
 #include "chart.h"
 #include "event.h"
 
+#define TRACK_EVENT_TAP "t"
+#define TRACK_EVENT_HOPO_FLIP "*"
+
 #define SONG_SECTION "Song"
 #define SYNC_TRACK_SECTION "SyncTrack"
 #define EVENTS_SECTION "Events"
@@ -24,12 +27,13 @@ Chart::~Chart()
 {
 }
 
-bool Chart::read(char *fpath)
+bool Chart::read(char fpath[])
 {
 	bool errors = false;
 	bool in_block = false;
 	ifstream infile(fpath);
 	string section = "";
+	unordered_map<string, map<uint32_t, vector<NoteEvent>>> mNoteEvents;
 
 	for (string line; getline(infile, line);) {
 		boost::trim(line);
@@ -75,7 +79,7 @@ bool Chart::read(char *fpath)
 					continue;
 			} else {
 				if (is_note_section(section)) {
-					if (parse_note_section_line(section, line))
+					if (parse_note_section_line(mNoteEvents[section], line))
 						continue;
 				} else {
 					cerr << "Unknown section: " << section << endl;
@@ -87,6 +91,8 @@ bool Chart::read(char *fpath)
 		errors = true;
 	}
 	infile.close();
+	if (!parse_note_events(mNoteEvents))
+		errors = true;
 	return !errors;
 }
 
@@ -179,31 +185,65 @@ bool Chart::parse_events_line(const string& line)
 	return false;
 }
 
-bool Chart::parse_note_section_line(const string& section, const string& line)
+/**
+ * Parse a line into a NoteEvent object and insert it into the vector
+ * `noteEvents`.
+ */
+bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>& noteEvents,
+		const string& line)
 {
 	string key;
 	string value;
 
-	// Get time
+	// Get time and vector associated with it
 	split_once(key, value, line, '=');
 	int time = stoi(key);
+	vector<NoteEvent>& v = noteEvents[time];
 
 	// Parse note
-	auto v = &noteSections[section][time];
 	split_once(key, value, value, ' ');
 	if (key == "E") { // "E" "some event"
-		// Track event
-		v->push_back(NoteEvent(time, value));
+		if (value == TRACK_EVENT_TAP) {
+			// Tap event
+			v.push_back(NoteEvent(time, TAP_FLAG_VAL, 0));
+		} else if (value == TRACK_EVENT_HOPO_FLIP) {
+			// HOPO flip event
+			v.push_back(NoteEvent(time, HOPO_FLIP_FLAG_VAL, 0));
+		} else {
+			// Other track event
+			v.push_back(NoteEvent(time, value));
+		}
 		return true;
 	} else if (key == "N") { // "N" "5 0"
 		// Note
 		split_once(key, value, value, ' ');
 		int val = stoi(key);
 		int dur = stoi(value);
-		v->push_back(NoteEvent(time, val, dur));
+		v.push_back(NoteEvent(time, val, dur));
 		return true;
 	}
 	return false;
+}
+
+bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents)
+{
+	bool errors = false;
+	// Iterate over map keys, which are note section names
+	for (auto e0: noteEvents) {
+		// Get the note map for this section
+		string section = e0.first;
+		map<uint32_t, Note>& m = noteSections[section];
+
+		// Iterate over submap keys, which are values of `time`
+		for (auto e1: noteEvents[section]) {
+			// Get the NoteEvent vector for this value of `time`
+			uint32_t time = e1.first;
+			vector<NoteEvent> events = noteEvents[section][time];
+			// Parse note events into notes, inserting them into map `m`
+			Note::parse_notes(m, events);
+		}
+	}
+	return !errors;
 }
 
 bool is_note_section(const string& section)
@@ -256,24 +296,29 @@ void Chart::print()
 	}
 	END_SECTION();
 
+	// Iterate over each note section
 	for (auto const& e0: noteSections) {
-		auto section = e0.first;
-		auto map = noteSections[section];
+		string section = e0.first;
+		map<uint32_t, Note> notes = noteSections[section];
+
 		BEGIN_SECTION(section);
-		for (auto const& e1: map) {
-			auto time = e1.first;
-			auto noteEvents = map[time];
-			for (auto noteEvent: noteEvents) {
-				cout << '\t' << noteEvent.time << " = ";
-				if (noteEvent.isEvent()) {
-					cout << "E " << noteEvent.text;
-				} else {
-					cout << "N " << noteEvent.value << " ";
-					cout << noteEvent.duration;
+
+		// Iterate over each note stored in this note section's map
+		for (auto const& e1: notes) {
+			uint32_t time = e1.first;
+			Note note = notes[time];
+
+			// Write each of the active note flags out
+			for (unsigned int b = 0; b < 32; b++) {
+				if ((note.value >> b) & 1) {
+					cout << '\t' << note.time << " = ";
+					cout << "N " << b << " ";
+					// Non-playble note flags should have a duration of zero
+					cout << ((b >= TAP_FLAG_VAL) ? 0 : note.duration) << endl;
 				}
-				cout << endl;
 			}
 		}
+
 		END_SECTION();
 	}
 }

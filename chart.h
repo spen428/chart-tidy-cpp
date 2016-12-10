@@ -34,11 +34,11 @@ class Chart
 		// [Events]
 		vector<Event> events;
 		// Note sections
-		unordered_map<string, map<uint32_t, vector<NoteEvent>>> noteSections;
+		unordered_map<string, map<uint32_t, Note>> noteSections;
 	private:
 		bool parse_song_line(const string& line);
 		bool parse_sync_track_line(const string& line);
 		bool parse_events_line(const string& line);
-		bool parse_note_section_line(const string& section,
-				const string& line);
+		bool parse_note_section_line(map<uint32_t, vector<NoteEvent>>& noteEvents, const string& line);
+		bool parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents);
 };
