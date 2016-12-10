@@ -34,8 +34,8 @@ bool NoteEvent::isNote()
 
 bool NoteEvent::isFlag()
 {
-	// Tap flag is the first non-playable note value
-	return isNote() && value >= TAP_FLAG_VAL;
+	// HOPO flip flag is the first non-playable note value
+	return isNote() && value >= HOPO_FLIP_FLAG_VAL;
 }
 
 Note::Note(){}

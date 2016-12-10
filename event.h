@@ -5,8 +5,8 @@
 #include <map>
 #include <vector>
 
-#define TAP_FLAG_VAL 5
-#define HOPO_FLIP_FLAG_VAL 6
+#define HOPO_FLIP_FLAG_VAL 5
+#define TAP_FLAG_VAL 6
 
 using namespace std;
 

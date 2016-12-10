@@ -314,7 +314,7 @@ void Chart::print()
 					cout << '\t' << note.time << " = ";
 					cout << "N " << b << " ";
 					// Non-playble note flags should have a duration of zero
-					cout << ((b >= TAP_FLAG_VAL) ? 0 : note.duration) << endl;
+					cout << ((b >= HOPO_FLIP_FLAG_VAL) ? 0 : note.duration) << endl;
 				}
 			}
 		}
