@@ -300,7 +300,7 @@ void Chart::print()
 	// Iterate over each note section
 	for (auto const& e0: noteSections) {
 		string section = e0.first;
-		map<uint32_t, Note> notes = noteSections[section];
+		map<uint32_t, Note>& notes = noteSections[section];
 
 		BEGIN_SECTION(section);
 

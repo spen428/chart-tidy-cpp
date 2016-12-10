@@ -51,9 +51,10 @@ void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 {
 	const uint32_t min_gap = 48; // 1/16 note
 	auto it = noteTrack.begin();
-	Note& prev_note = noteTrack[it->first];
-	for (++it; it != noteTrack.end(); it++) {
+	uint32_t prev_time = it->first;
+	for (++it; it != noteTrack.end(); ++it) {
 		Note& note = noteTrack[it->first];
+                Note& prev_note = noteTrack[prev_time];
 		if (prev_note.duration > 0) {
 			uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
 			int delta = note.time - prev_note_end_time;
@@ -70,7 +71,7 @@ void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 				cerr << prev_note << " (-" << delta << ")" << endl;
 			}
 		}
-		prev_note = note;
+		prev_time = it->first;
 	}
 }
 
