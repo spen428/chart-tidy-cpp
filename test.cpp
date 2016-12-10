@@ -1,6 +1,7 @@
 #include <iostream>
-#include "chart.h"
 
+#include "chart.h"
+#include "fix.h"
 
 int main(int argc, char* argv[])
 {
@@ -11,6 +12,7 @@ int main(int argc, char* argv[])
 
 	Chart chart;
 	chart.read(argv[1]);
+	Fix::fix_all(chart);
 	chart.print();
 	return 0;
 }
