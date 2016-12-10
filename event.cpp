@@ -4,18 +4,20 @@
 #include "fix.h"
 #include "event.h"
 
-Event::Event(uint32_t time, std::string text):
+using namespace std;
+
+Event::Event(uint32_t time, string text):
 	time(time), text(text){}
 
 Event::~Event(){}
 
-SyncTrackEvent::SyncTrackEvent(uint32_t time, std::string type,
+SyncTrackEvent::SyncTrackEvent(uint32_t time, string type,
 		uint32_t value):
 	Event(time, ""), type(type), value(value){}
 
 SyncTrackEvent::~SyncTrackEvent(){}
 
-NoteEvent::NoteEvent(uint32_t time, std::string text):
+NoteEvent::NoteEvent(uint32_t time, string text):
 	Event(time, text), value(0), duration(0){}
 
 NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration):
@@ -86,4 +88,9 @@ void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultan
 		// Add note to map
 		noteMap[note.time] = note;
 	}
+}
+
+ostream& operator<<(ostream& os, const Note& n)
+{
+	return os << n.time << " = N #" << n.value << " " << n.duration;
 }

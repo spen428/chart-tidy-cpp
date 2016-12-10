@@ -13,6 +13,7 @@ namespace Fix {
 	void fix_missing_end_event(Chart& chart);
 
 	/* Note track fixes */
+	void fix_sustain_gap(map<uint32_t, Note>& noteTrack);
 	void fix_unequal_note_durations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents);
 
 }

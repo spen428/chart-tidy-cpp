@@ -19,13 +19,8 @@ using namespace std;
 void split_once(string& first, string& second, string str);
 bool is_note_section(const string& section);
 
-Chart::Chart()
-{
-}
-
-Chart::~Chart()
-{
-}
+Chart::Chart(){}
+Chart::~Chart(){}
 
 bool Chart::read(char fpath[])
 {
@@ -206,12 +201,18 @@ bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>& noteEvents
 		if (value == TRACK_EVENT_TAP) {
 			// Tap event
 			v.push_back(NoteEvent(time, TAP_FLAG_VAL, 0));
+			cerr << "Replacing track event E " << TRACK_EVENT_TAP;
+			cerr << " at time " << time << " with tap flag" << endl;
 		} else if (value == TRACK_EVENT_HOPO_FLIP) {
 			// HOPO flip event
 			v.push_back(NoteEvent(time, HOPO_FLIP_FLAG_VAL, 0));
+			cerr << "Replacing track event E " << TRACK_EVENT_HOPO_FLIP;
+			cerr << " at time " << time << " with HOPO flip flag" << endl;
 		} else {
 			// Other track event
-			v.push_back(NoteEvent(time, value));
+			// v.push_back(NoteEvent(time, value));
+			cerr << "Removing unknown track event E " << value;
+			cerr << " at time " << time << endl;
 		}
 		return true;
 	} else if (key == "N") { // "N" "5 0"

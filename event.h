@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <map>
 #include <vector>
+#include <iostream>
 
 #define HOPO_FLIP_FLAG_VAL 5
 #define TAP_FLAG_VAL 6
@@ -59,6 +60,8 @@ class Note
 		~Note();
 		bool isTap();
 		bool isForce();
+
+		friend ostream& operator<<(ostream& os, const Note& n);
 
 		static void parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents);
 
