@@ -265,9 +265,14 @@ bool is_note_section(const string& section)
 	        || section == "HardKeyboard");
 }
 
+#define DEFAULT_FEEDBACK_SAFE false
 #define BEGIN_SECTION(X) cout << "[" << X << "]" << endl << "{" << endl
 #define END_SECTION() cout << "}" << endl
 void Chart::print()
+{
+	print(DEFAULT_FEEDBACK_SAFE);
+}
+void Chart::print(bool feedback_safe)
 {
 	BEGIN_SECTION(SONG_SECTION);
 	cout << '\t' << "Name" << " = " << name << endl;
@@ -311,11 +316,26 @@ void Chart::print()
 
 			// Write each of the active note flags out
 			for (unsigned int b = 0; b < 32; b++) {
-				if ((note.value >> b) & 1) {
-					cout << '\t' << note.time << " = ";
+				if (!((note.value >> b) & 1))
+					continue;
+				cout << '\t' << note.time << " = ";
+				if (b >= HOPO_FLIP_FLAG_VAL) {
+					if (feedback_safe) {
+						if (b == HOPO_FLIP_FLAG_VAL) {
+							cout << "E " << TRACK_EVENT_HOPO_FLIP << endl;
+						} else if (b == TAP_FLAG_VAL) {
+							cout << "E " << TRACK_EVENT_TAP << endl;
+						} else {
+							cerr << "Unhandled note flag " << b << endl;
+						}	
+					} else {
+						cout << "N " << b << " ";
+						// Non-playble note flags should have a duration of zero
+						cout << 0 << endl;
+					}
+				} else {
 					cout << "N " << b << " ";
-					// Non-playble note flags should have a duration of zero
-					cout << ((b >= HOPO_FLIP_FLAG_VAL) ? 0 : note.duration) << endl;
+					cout << note.duration << endl;
 				}
 			}
 		}

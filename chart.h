@@ -15,6 +15,7 @@ class Chart
 		~Chart();
 		bool read(char fpath[]);
 		void print();
+		void print(bool feedback_safe);
 
 		// [Song]
 		string name;
