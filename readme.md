@@ -44,7 +44,7 @@ Usage: `chart-tidy CHART_FILE [-fb] > NEW_CHART_FILE`, where the `-fb` flag disa
 
 4. The length of the sustain notes will be decreased to their maximum legal length. By default the minimum gap is the length of a 1/32 note, which is 24 time units. By default if the note or chord after the sustain is the same, this fix is not applied.
 
-5. Any unsupported characters are replaced with a hyphen (`-`).
+5. Any unsupported characters are replaced with a hyphen `-`.
 
 6. The preview window is set to begin at the chart's offset value. This does nothing if the offset value is 0, but may cut any leading silence out of the preview if it is greater than zero.
 
@@ -53,7 +53,7 @@ Usage: `chart-tidy CHART_FILE [-fb] > NEW_CHART_FILE`, where the `-fb` flag disa
 	```
 	||||           ||||       | |           | |
 	|||*           |||*       | |           | |
-	|||   becomes  ***   and  ||*  becomes  * *
+	|||   becomes  |||   and  ||*  becomes  * *
 	||*            ***        ||            ||
 	|o             oo         ||            ||
 	o              o          oo            oo
