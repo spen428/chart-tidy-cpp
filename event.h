@@ -9,6 +9,8 @@
 #define HOPO_FLIP_FLAG_VAL 5
 #define TAP_FLAG_VAL 6
 
+const unsigned int TOTAL_NOTE_FLAGS = 7;
+
 using namespace std;
 
 class Event

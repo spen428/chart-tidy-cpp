@@ -62,8 +62,7 @@ void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 				uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
 				int delta = note.time - prev_note_end_time;
 				if (delta < min_gap) {
-					cerr << "Sustain gap too small between " << endl << "    " << prev_note << endl;
-					cerr << "and " << note << endl;
+					cerr << "Sustain gap too small between " << prev_note << " and " << note << endl;
 					cerr << "Duration changed from " << prev_note.duration << " to ";
 
 					// Do fix

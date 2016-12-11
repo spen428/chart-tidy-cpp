@@ -1,4 +1,5 @@
 #include <iostream>
+#include <bitset>
 #include <set>
 
 #include "fix.h"
@@ -97,5 +98,6 @@ void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultan
 
 ostream& operator<<(ostream& os, const Note& n)
 {
-	return os << n.time << " = N #" << n.value << " " << n.duration;
+	return os << "[" << n.time << ", " << bitset<TOTAL_NOTE_FLAGS>(n.value) << ", " << n.duration << "]";
+	// return os << n.time << " = N " << bitset<TOTAL_NOTE_FLAGS>(n.value) << " " << n.duration;
 }
