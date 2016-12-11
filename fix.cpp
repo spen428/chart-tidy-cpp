@@ -23,7 +23,7 @@ void fix::fix_missing_start_event(Chart& chart)
 {
 	// Return if section already exists
 	for (Event evt: chart.events)
-		if (evt.time == 0 && boost::starts_with(evt.text, "E \"section"))
+		if (evt.time == 0 && boost::starts_with(evt.text, "\"section"))
 			return;
 
 	// Add a start section
