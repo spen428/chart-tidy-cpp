@@ -1,4 +1,5 @@
 #include <iostream>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "fix.h"
 
@@ -7,6 +8,7 @@ using namespace std;
 void Fix::fix_all(Chart& chart)
 {
 	// TODO
+	fix_missing_start_event(chart);
 	fix_missing_end_event(chart);
 
 	// For each note track
@@ -17,9 +19,21 @@ void Fix::fix_all(Chart& chart)
 }
 
 /* Chart file fixes */
+void Fix::fix_missing_start_event(Chart& chart)
+{
+	// Return if section already exists
+	for (Event evt: chart.events)
+		if (evt.time == 0 && boost::starts_with(evt.text, "E \"section"))
+			return;
+
+	// Add a start section
+	chart.events.insert(chart.events.begin(), NoteEvent(0, "\"section Start\""));
+	cerr << "Inserted start section at time 0" << endl;
+}
+
 void Fix::fix_missing_end_event(Chart& chart)
 {
-	// Return if end section already exists
+	// Return if section already exists
 	for (Event evt: chart.events)
 		if (evt.text == "\"end\"")
 			return;
@@ -44,6 +58,7 @@ void Fix::fix_missing_end_event(Chart& chart)
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
 	chart.events.push_back(NoteEvent(max_time, "\"end\""));
+	cerr << "Inserted end event at time " << max_time << endl;
 }
 
 /* Note track fixes */

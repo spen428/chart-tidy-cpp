@@ -10,6 +10,7 @@ namespace Fix {
 	void fix_all(Chart& chart);
 
 	/* Chart file fixes */
+	void fix_missing_start_event(Chart& chart);
 	void fix_missing_end_event(Chart& chart);
 
 	/* Note track fixes */
