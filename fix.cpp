@@ -10,6 +10,7 @@ void fix::fix_all(Chart& chart)
 	// TODO
 	fix_missing_start_event(chart);
 	fix_missing_end_event(chart);
+	fix_no_leading_measure(chart);
 
 	// For each note track
 	for (auto it: chart.noteSections) {
@@ -62,6 +63,55 @@ void fix::fix_missing_end_event(Chart& chart)
 }
 
 /* Note track fixes */
+void fix::fix_no_leading_measure(Chart& chart)
+{
+	const unsigned int max_bpmT = 9999000; // Limit in FeedBack
+	const unsigned int max_ts = 99; // Limit in FeedBack
+	const unsigned int one_second_time = 8*48; // Offset in game time units
+
+	if (chart.offset < 1) {
+		cerr << "Cannot fix no_leading_measure: offset is less than 1" << endl;
+		return;
+	}
+
+	// TODO: Don't apply if not necessary
+	
+	// Correct offset
+	chart.offset -= 1; // Reduce by one second (real time units)
+
+	// Shift all events forward (except for start event) by one second (game time units)
+	// TODO: Apply also to PreviewStart/PreviewEnd IFF set
+	for (SyncTrackEvent& evt: chart.syncTrack)
+		evt.time += one_second_time;
+	for (Event& evt: chart.events) {
+		if (evt.time == 0 && boost::starts_with(evt.text, "\"section"))
+			continue; // Don't move the start event
+		evt.time += one_second_time;
+	}
+	// Shift all notes forward
+	for (auto e0: chart.noteSections) {
+		string section = e0.first;
+		map<uint32_t, Note>& noteMap = chart.noteSections[section];
+		// Build new vector
+		vector<Note> fixedNotes;
+		for (auto e1: noteMap){
+			Note note = noteMap[e1.first];
+			note.time += one_second_time;
+			fixedNotes.push_back(note);
+		}
+		// Clear map and rebuild with new vector
+		noteMap.clear();
+		for (auto note: fixedNotes) 
+			noteMap[note.time] = note;
+	}	
+	
+	// Add a single measure of 2/4 at 120BPM at the beginning of the song (= 1 second)
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "TS", 2));
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B", 120000));
+	
+	cerr << "Inserted leading measure" << endl;
+}
+
 void fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 {
 	const uint32_t min_gap = 24; // 1/32 note
