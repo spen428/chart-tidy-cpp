@@ -49,26 +49,31 @@ void Fix::fix_missing_end_event(Chart& chart)
 /* Note track fixes */
 void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 {
-	const uint32_t min_gap = 48; // 1/16 note
+	const uint32_t min_gap = 24; // 1/32 note
+	const bool apply_to_repeat_notes = false; // If the next note is identical, should the fix still be applied?
 	auto it = noteTrack.begin();
 	uint32_t prev_time = it->first;
 	for (++it; it != noteTrack.end(); ++it) {
 		Note& note = noteTrack[it->first];
-                Note& prev_note = noteTrack[prev_time];
-		if (prev_note.duration > 0) {
-			uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
-			int delta = note.time - prev_note_end_time;
-			if (delta < min_gap) {
-				cerr << "Sustain gap too small between " << prev_note << " and " << note << ". ";
-				cerr << "Set " << prev_note << " => ";
+        Note& prev_note = noteTrack[prev_time];
+		if (prev_note.duration > 0) { // Ignore non-sustain notes
+			if ((apply_to_repeat_notes && prev_note.equalsPlayable(note))
+				|| !prev_note.equalsPlayable(note)) { // Ignore identical notes if set
+				uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
+				int delta = note.time - prev_note_end_time;
+				if (delta < min_gap) {
+					cerr << "Sustain gap too small between " << endl << "    " << prev_note << endl;
+					cerr << "and " << note << endl;
+					cerr << "Duration changed from " << prev_note.duration << " to ";
 
-				// Do fix
-				delta = min_gap - delta;
-				if (prev_note.duration < delta)
-					delta = prev_note.duration;
-				prev_note.duration -= delta;
+					// Do fix
+					delta = min_gap - delta;
+					if (prev_note.duration < delta)
+						delta = prev_note.duration;
+					prev_note.duration -= delta;
 
-				cerr << prev_note << " (-" << delta << ")" << endl;
+					cerr << prev_note.duration << " (-" << delta << ")" << endl;
+				}
 			}
 		}
 		prev_time = it->first;

@@ -54,6 +54,11 @@ bool Note::isForce()
 	return (value & (1 << HOPO_FLIP_FLAG_VAL));
 }
 
+bool Note::equalsPlayable(const Note& note)
+{
+	return (value & note.value & 0x1F) == 1;
+}
+
 void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents)
 {
 	Note note;

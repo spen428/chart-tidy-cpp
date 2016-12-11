@@ -60,6 +60,11 @@ class Note
 		~Note();
 		bool isTap();
 		bool isForce();
+		/**
+		 * True if the first 5 bits of each Note's `value` is the same, signifying that they are the same note,
+		 * ignoring tap/force status.
+		 */
+		bool equalsPlayable(const Note& note);
 
 		friend ostream& operator<<(ostream& os, const Note& n);
 
