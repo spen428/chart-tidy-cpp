@@ -5,7 +5,7 @@
 #include "event.h"
 #include "chart.h"
 
-namespace Fix {
+namespace fix {
 
 	void fix_all(Chart& chart);
 

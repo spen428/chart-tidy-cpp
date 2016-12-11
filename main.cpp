@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 
 	Chart chart;
 	chart.read(argv[1]);
-	Fix::fix_all(chart);
+	fix::fix_all(chart);
 	chart.print();
 	return 0;
 }

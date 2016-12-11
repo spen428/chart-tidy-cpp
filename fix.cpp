@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void Fix::fix_all(Chart& chart)
+void fix::fix_all(Chart& chart)
 {
 	// TODO
 	fix_missing_start_event(chart);
@@ -19,7 +19,7 @@ void Fix::fix_all(Chart& chart)
 }
 
 /* Chart file fixes */
-void Fix::fix_missing_start_event(Chart& chart)
+void fix::fix_missing_start_event(Chart& chart)
 {
 	// Return if section already exists
 	for (Event evt: chart.events)
@@ -31,7 +31,7 @@ void Fix::fix_missing_start_event(Chart& chart)
 	cerr << "Inserted start section at time 0" << endl;
 }
 
-void Fix::fix_missing_end_event(Chart& chart)
+void fix::fix_missing_end_event(Chart& chart)
 {
 	// Return if section already exists
 	for (Event evt: chart.events)
@@ -62,7 +62,7 @@ void Fix::fix_missing_end_event(Chart& chart)
 }
 
 /* Note track fixes */
-void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
+void fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 {
 	const uint32_t min_gap = 24; // 1/32 note
 	const bool apply_to_repeat_notes = false; // If the next note is identical, should the fix still be applied?
@@ -94,7 +94,7 @@ void Fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack)
 	}
 }
 
-void Fix::fix_unequal_note_durations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents)
+void fix::fix_unequal_note_durations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents)
 {
 	// TODO
 }
