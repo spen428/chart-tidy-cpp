@@ -18,6 +18,7 @@
  */
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -26,8 +27,8 @@
 #include "debug.h"
 #include "event.h"
 
-#define TRACK_EVENT_TAP "t"
-#define TRACK_EVENT_HOPO_FLIP "*"
+const std::string DEFAULT_NOTE_TRACK_EVENT_TAP = "t";
+const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
 
 #define SONG_SECTION "Song"
 #define SYNC_TRACK_SECTION "SyncTrack"
@@ -35,6 +36,7 @@
 
 void splitOnce(std::string& first, std::string& second, std::string str);
 bool isNoteSection(const std::string& section);
+std::string toFeedbackSafeString(const NoteTrackEvent& nte);
 
 Chart::Chart() {
 }
@@ -47,7 +49,6 @@ bool Chart::read(char fpath[]) {
 	bool inBlock = false;
 	std::ifstream infile(fpath);
 	std::string section;
-	std::unordered_map<std::string, std::map<uint32_t, std::vector < NoteTrackEvent>>> mNoteEvents;
 
 	for (std::string line; getline(infile, line);) {
 		boost::trim(line);
@@ -93,7 +94,7 @@ bool Chart::read(char fpath[]) {
 					continue;
 			} else {
 				if (isNoteSection(section)) {
-					if (parseNoteSectionLine(mNoteEvents[section], line))
+					if (parseNoteSectionLine(section, line))
 						continue;
 				} else {
 					std::cerr << "Unknown section: " << section << "\r\n";
@@ -105,7 +106,7 @@ bool Chart::read(char fpath[]) {
 		errors = true;
 	}
 	infile.close();
-	if (!parseNoteEvents(mNoteEvents))
+	if (!parseNoteEvents())
 		errors = true;
 	return !errors;
 }
@@ -199,28 +200,27 @@ bool Chart::parseEventsLine(const std::string& line) {
  * Parse a line into a NoteEvent object and insert it into the vector
  * `noteEvents`.
  */
-bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteTrackEvent>>&noteEvents,
-		const std::string& line) {
+bool Chart::parseNoteSectionLine(const std::string& section, const std::string& line) {
 	std::string key;
 	std::string value;
 
 	// Get time and vector associated with it
 	splitOnce(key, value, line, '=');
 	int time = stoi(key);
-	std::vector<NoteTrackEvent>& v = noteEvents[time];
+	std::vector<NoteTrackEvent>& v = noteTrackEvents[section][time];
 
 	// Parse note
 	splitOnce(key, value, value, ' ');
 	if (key == "E") { // "E" "some event"
-		if (value == TRACK_EVENT_TAP) {
+		if (value == DEFAULT_NOTE_TRACK_EVENT_TAP) {
 			// Tap event
 			v.push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_TAP, 0));
-			std::cerr << "Replacing track event E " << TRACK_EVENT_TAP;
+			std::cerr << "Replacing track event E " << DEFAULT_NOTE_TRACK_EVENT_TAP;
 			std::cerr << " at time " << time << " with tap flag" << "\r\n";
-		} else if (value == TRACK_EVENT_HOPO_FLIP) {
+		} else if (value == DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP) {
 			// HOPO flip event
 			v.push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_HOPO_FLIP, 0));
-			std::cerr << "Replacing track event E " << TRACK_EVENT_HOPO_FLIP;
+			std::cerr << "Replacing track event E " << DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP;
 			std::cerr << " at time " << time << " with HOPO flip flag" << "\r\n";
 		} else {
 			// Other track event
@@ -240,19 +240,19 @@ bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteTrackEvent>>
 	return false;
 }
 
-bool Chart::parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>>& noteEvents) {
+bool Chart::parseNoteEvents() {
 	bool errors = false;
 	// Iterate over map keys, which are note section names
-	for (auto it : noteEvents) {
+	for (auto it : noteTrackEvents) {
 		// Get the note map for this section
 		std::string section = it.first;
 		std::map<uint32_t, Note>& noteTrack = noteTracks[section];
 
 		// Iterate over submap keys, which are values of `time`
-		for (auto e1 : noteEvents[section]) {
+		for (auto e1 : noteTrackEvents[section]) {
 			// Get the NoteEvent vector for this value of `time`
 			uint32_t time = e1.first;
-			std::vector<NoteTrackEvent> events = noteEvents[section][time];
+			std::vector<NoteTrackEvent> events = noteTrackEvents[section][time];
 			// Parse note events into notes, inserting them into map `m`
 			Note::parseNotes(noteTrack, events);
 		}
@@ -294,7 +294,6 @@ void Chart::print(bool feedbackSafe) {
 	std::cout << '\t' << "Resolution" << " = " << resolution << "\r\n";
 	std::cout << '\t' << "Player2" << " = " << player2 << "\r\n";
 	std::cout << '\t' << "Difficulty" << " = " << difficulty << "\r\n";
-	// TODO: How many d.p. are expected?
 	std::cout << '\t' << "PreviewStart" << " = " << previewStart << "\r\n";
 	std::cout << '\t' << "PreviewEnd" << " = " << previewEnd << "\r\n";
 	std::cout << '\t' << "Genre" << " = " << genre << "\r\n";
@@ -334,9 +333,9 @@ void Chart::print(bool feedbackSafe) {
 				if (b > PLAYABLE_NOTE_TOTAL) {
 					if (feedbackSafe) {
 						if (b == NOTE_FLAG_VAL_HOPO_FLIP) {
-							std::cout << "E " << TRACK_EVENT_HOPO_FLIP << "\r\n";
+							std::cout << "E " << DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP << "\r\n";
 						} else if (b == NOTE_FLAG_VAL_TAP) {
-							std::cout << "E " << TRACK_EVENT_TAP << "\r\n";
+							std::cout << "E " << DEFAULT_NOTE_TRACK_EVENT_TAP << "\r\n";
 						} else {
 							std::cerr << "Unhandled note flag " << b << "\r\n";
 						}
@@ -354,4 +353,20 @@ void Chart::print(bool feedbackSafe) {
 
 		std::cout << "}" << "\r\n";
 	}
+}
+
+std::string toFeedbackSafeString(const NoteTrackEvent& nte) {
+	if (!nte.isFlag())
+		return nte.toEventString();
+	std::stringstream ss;
+	ss << nte.time << " = E ";
+	if (nte.value == NOTE_FLAG_VAL_HOPO_FLIP) {
+		ss << DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP;
+	} else if (nte.value == NOTE_FLAG_VAL_TAP) {
+		ss << DEFAULT_NOTE_TRACK_EVENT_TAP;
+	} else {
+		std::cerr << "Unhandled NTE value for toFeedbackSafeString() conversion " << nte.value << "\r\n";
+		ss << nte.value;
+	}
+	return ss.str();
 }

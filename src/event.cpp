@@ -55,6 +55,16 @@ std::string SyncTrackEvent::toEventString() const {
 	return ss.str();
 }
 
+bool SyncTrackEvent::isTempoChange() const {
+	return type == SYNC_TRACK_EVENT_TYPE_TEMPO;
+}
+
+bool SyncTrackEvent::isTsChange() const {
+	return type == SYNC_TRACK_EVENT_TYPE_TIMESIG;
+}
+
+
+
 NoteTrackEvent::NoteTrackEvent(uint32_t time, std::string text) :
 Event(time, text), value(0), duration(0) {
 }
@@ -146,6 +156,10 @@ void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteTrackEv
 		// Add note to map
 		noteMap[note.time] = note;
 	}
+}
+
+void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vector) {
+
 }
 
 std::ostream& operator<<(std::ostream& os, const Note& note) {

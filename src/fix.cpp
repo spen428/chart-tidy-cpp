@@ -134,9 +134,9 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	}
 
 	// Add the insert measure
-	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "TS",
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, SYNC_TRACK_EVENT_TYPE_TIMESIG,
 			insert_numerator));
-	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B",
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, SYNC_TRACK_EVENT_TYPE_TEMPO,
 			insert_bpmT));
 
 	std::cerr << "Inserted leading measure of " << insert_numerator << "/4 at ";

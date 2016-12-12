@@ -51,10 +51,11 @@ public:
     std::vector<Event> events;
     // Note tracks, e.g. [ExpertSingle]
     std::unordered_map<std::string, std::map<uint32_t, Note>> noteTracks;
+    std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>> noteTrackEvents;
 private:
     bool parseSongLine(const std::string& line);
     bool parseSyncTrackLine(const std::string& line);
     bool parseEventsLine(const std::string& line);
-    bool parseNoteSectionLine(std::map<uint32_t, std::vector<NoteTrackEvent>>&noteEvents, const std::string& line);
-    bool parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>>& noteEvents);
+    bool parseNoteSectionLine(const std::string& section, const std::string& line);
+    bool parseNoteEvents();
 };
