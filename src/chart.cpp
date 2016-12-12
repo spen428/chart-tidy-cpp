@@ -331,7 +331,7 @@ void Chart::print(bool feedbackSafe) {
 				if (!((note.value >> b) & 1))
 					continue;
 				std::cout << '\t' << note.time << " = ";
-				if (b >= NOTE_FLAG_VAL_HOPO_FLIP) {
+				if (b > PLAYABLE_NOTE_TOTAL) {
 					if (feedbackSafe) {
 						if (b == NOTE_FLAG_VAL_HOPO_FLIP) {
 							std::cout << "E " << TRACK_EVENT_HOPO_FLIP << "\r\n";
@@ -346,7 +346,7 @@ void Chart::print(bool feedbackSafe) {
 						std::cout << 0 << "\r\n";
 					}
 				} else {
-					std::cout << "N " << b << " ";
+					std::cout << "N" << " " << b << " ";
 					std::cout << note.duration << "\r\n";
 				}
 			}

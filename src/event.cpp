@@ -17,6 +17,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <iostream>
+#include <sstream>
 #include <bitset>
 #include <set>
 
@@ -30,6 +31,12 @@ time(time), text(text) {
 Event::~Event() {
 }
 
+std::string Event::toEventString() {
+	std::stringstream ss;
+	ss << time << " = E " << text;
+	return ss.str();
+}
+
 SyncTrackEvent::SyncTrackEvent(uint32_t time, std::string type,
 		uint32_t value) :
 Event(time, ""), type(type), value(value) {
@@ -38,15 +45,47 @@ Event(time, ""), type(type), value(value) {
 SyncTrackEvent::~SyncTrackEvent() {
 }
 
-NoteEvent::NoteEvent(uint32_t time, std::string text) :
-Event(time, text), value(0), duration(0) {
+std::string SyncTrackEvent::toEventString() {
+	std::stringstream ss;
+	ss << time << " = " << type << " " << value;
+	return ss.str();
 }
 
-NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration) :
+StarPowerEvent::StarPowerEvent(uint32_t time, uint32_t value, uint32_t duration) :
 Event(time, ""), value(value), duration(duration) {
 }
 
+StarPowerEvent::~StarPowerEvent() {
+}
+
+std::string StarPowerEvent::toEventString() {
+	std::stringstream ss;
+	ss <<  time << " = S " << value << " " << duration;
+	return ss.str();
+}
+
+NoteEvent::NoteEvent(uint32_t time, std::string text) :
+Event(time, text), type(""), value(0), duration(0) {
+}
+
+NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration):
+NoteEvent("N", time, value, duration) {
+}
+
+NoteEvent::NoteEvent(std::string type, uint32_t time, uint32_t value, uint32_t duration) :
+Event(time, ""), type(type), value(value), duration(duration) {
+}
+
 NoteEvent::~NoteEvent() {
+}
+
+std::string NoteEvent::toEventString() {
+	if (isEvent()) {
+		return Event::toEventString();
+	}
+	std::stringstream ss;
+	ss << time << " = " << type << " " << value << " " << duration;
+	return ss.str();
 }
 
 bool NoteEvent::isEvent() {
@@ -54,12 +93,16 @@ bool NoteEvent::isEvent() {
 }
 
 bool NoteEvent::isNote() {
-	return !isEvent();
+	return type == "N";
 }
 
 bool NoteEvent::isFlag() {
 	// HOPO flip flag is the first non-playable note value
-	return isNote() && value >= NOTE_FLAG_VAL_HOPO_FLIP;
+	return isNote() && value >= PLAYABLE_NOTE_TOTAL;
+}
+
+bool NoteEvent::isStarPower() {
+	return type == "S";
 }
 
 Note::Note() {

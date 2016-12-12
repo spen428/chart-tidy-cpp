@@ -32,11 +32,18 @@ const unsigned int NOTE_FLAG_VAL_ORANGE = 4;
 const unsigned int NOTE_FLAG_VAL_HOPO_FLIP = 5;
 const unsigned int NOTE_FLAG_VAL_TAP = 6;
 const unsigned int NOTE_FLAG_TOTAL = 7;
+const unsigned int PLAYABLE_NOTE_TOTAL = 5; // GRYBO
 
 class Event {
 public:
     Event(uint32_t time, std::string text);
     ~Event();
+    /**
+     * Return the string representation of this event as it would appear in a
+     * chart file. Subclasses of `Event` should use this method to allow for
+     * easy serialisation.
+     */
+    virtual std::string toEventString();
 
     uint32_t time;
     /**
@@ -49,6 +56,7 @@ class SyncTrackEvent : public Event {
 public:
     SyncTrackEvent(uint32_t time, std::string type, uint32_t value);
     ~SyncTrackEvent();
+    std::string toEventString() override;
     bool isTsChange();
     bool isTempoChange();
 
@@ -58,12 +66,44 @@ public:
 
 class NoteEvent : public Event {
 public:
+    /**
+     * Constructor for E type events in the note track
+     */
     NoteEvent(uint32_t time, std::string text);
+    /**
+     * Constructor for N type events in the note track
+     */
     NoteEvent(uint32_t time, uint32_t value, uint32_t duration);
+    /**
+     * Constructor for N or S type events in the note track
+     */
+    NoteEvent(std::string type, uint32_t time, uint32_t value, uint32_t duration);
     ~NoteEvent();
+    std::string toEventString() override;
     bool isNote();
     bool isFlag();
     bool isEvent();
+    bool isStarPower();
+
+    /**
+     * Letter representing this NoteEvent type (N for note/flag, S for star power)
+     */
+    std::string type;
+    /**
+     * Note value as decimal
+     */
+    uint32_t value;
+    uint32_t duration;
+};
+
+class StarPowerEvent : public Event {
+public:
+    /**
+     * Constructor for N and S type events in the note track
+     */
+    StarPowerEvent(uint32_t time, uint32_t value, uint32_t duration);
+    ~StarPowerEvent();
+    std::string toEventString() override;
 
     /**
      * Note value as decimal
