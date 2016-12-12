@@ -278,15 +278,13 @@ bool isNoteSection(const std::string& section) {
 }
 
 #define DEFAULT_FEEDBACK_SAFE false
-#define BEGIN_SECTION(X) std::cout << "[" << X << "]" << "\r\n" << "{" << "\r\n"
-#define END_SECTION() std::cout << "}" << "\r\n"
 
 void Chart::print() {
 	print(DEFAULT_FEEDBACK_SAFE);
 }
 
 void Chart::print(bool feedbackSafe) {
-	BEGIN_SECTION(SONG_SECTION);
+	std::cout << "[" << SONG_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	std::cout << '\t' << "Name" << " = " << name << "\r\n";
 	std::cout << '\t' << "Artist" << " = " << artist << "\r\n";
 	std::cout << '\t' << "Charter" << " = " << charter << "\r\n";
@@ -300,26 +298,26 @@ void Chart::print(bool feedbackSafe) {
 	std::cout << '\t' << "Genre" << " = " << genre << "\r\n";
 	std::cout << '\t' << "MediaType" << " = " << mediaType << "\r\n";
 	std::cout << '\t' << "MusicStream" << " = " << musicStream << "\r\n";
-	END_SECTION();
+	std::cout << "}" << "\r\n";
 
-	BEGIN_SECTION(SYNC_TRACK_SECTION);
+	std::cout << "[" << SYNC_TRACK_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	for (const SyncTrackEvent& evt : syncTrack) {
 		std::cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << "\r\n";
 	}
-	END_SECTION();
+	std::cout << "}" << "\r\n";
 
-	BEGIN_SECTION(EVENTS_SECTION);
+	std::cout << "[" << EVENTS_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	for (const Event& evt : events) {
 		std::cout << '\t' << evt.time << " = E " << evt.text << "\r\n";
 	}
-	END_SECTION();
+	std::cout << "}" << "\r\n";
 
 	// Iterate over each note section
 	for (auto const& e0 : noteTracks) {
 		std::string section = e0.first;
 		std::map<uint32_t, Note>& notes = noteTracks[section];
 
-		BEGIN_SECTION(section);
+		std::cout << "[" << section << "]" << "\r\n" << "{" << "\r\n";
 
 		// Iterate over each note stored in this note section's map
 		for (auto const& e1 : notes) {
@@ -352,6 +350,6 @@ void Chart::print(bool feedbackSafe) {
 			}
 		}
 
-		END_SECTION();
+		std::cout << "}" << "\r\n";
 	}
 }
