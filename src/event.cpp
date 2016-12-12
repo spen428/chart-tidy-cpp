@@ -79,7 +79,7 @@ bool Note::isForce() {
 }
 
 bool Note::equalsPlayable(const Note& note) {
-	return (value & note.value & 0x1F) == 1;
+	return (value & note.value & 0x1F) == 0x1F;
 }
 
 void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents) {

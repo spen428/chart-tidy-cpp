@@ -19,6 +19,7 @@
 #include <iostream>
 #include <boost/algorithm/string/predicate.hpp>
 
+#include "FeedBack.h"
 #include "fix.h"
 
 using namespace std;
@@ -84,13 +85,14 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	 * Shifts all note tracks, the sync track, and all events except for the
 	 * section at time 0 forwards by 1 second, and then inserts a "leading"
 	 * measure of length 1 second to the beginning of each note track.
+	 * 
+	 * offset value is stored to 3 d.p.
 	 */
 
 	/** Numerator of the time signature of the measure that will be inserted */
-	const unsigned int insert_numerator = 2;
-	const unsigned int insert_bpmT = 120000; // BPM * 1000 of the insert measure
-	/** The offset in game time units, one measure of 2/4 is 8 x 16th notes */
-	const unsigned int offset_game_time = 8 * 48; // 48 = 1/16th in game time
+	unsigned int insert_numerator = 1;
+	unsigned int insert_bpmT = 240000; // BPM * 1000 of the insert measure
+	const unsigned int offset_game_time = DURATION_1_1;
 	const unsigned int offset_real_time = 1; // 1 second
 
 	// const unsigned int max_bpmT = 9999000; // Limit in FeedBack
@@ -132,18 +134,20 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 			noteMap[note.time] = note;
 	}
 
-	// Add a single measure of 2/4 at 120BPM at the beginning of the song (= 1 second)
+	// Add the insert measure
 	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "TS",
 			insert_numerator));
 	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B",
 			insert_bpmT));
 
-	cerr << "Inserted leading measure" << endl;
+	cerr << "Inserted leading measure of " << insert_numerator << "/4 at ";
+	cerr << (insert_bpmT / 1000) << " BPM" << endl;
 }
 
 void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
-	const uint32_t min_gap = 24; // 1/32 note
-	const bool apply_to_repeat_notes = false; // If the next note is identical, should the fix still be applied?
+	const uint32_t min_gap = DURATION_1_32;
+	/** If the next note is identical, should the fix still be applied? */
+	const bool apply_to_repeat_notes = false;
 	auto it = noteTrack.begin();
 	uint32_t prev_time = it->first;
 	for (++it; it != noteTrack.end(); ++it) {

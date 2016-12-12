@@ -21,8 +21,7 @@
 #include "chart.h"
 #include "fix.h"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	if (argc < 2) {
 		std::cerr << "You must pass a file path as an argument" << std::endl;
 		return 1;
