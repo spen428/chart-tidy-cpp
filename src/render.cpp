@@ -32,9 +32,9 @@ void renderer::chartToText(const Chart& chart) {
 	std::cout << "Charter:\t" << chart.charter << "\r\n";
 	std::cout << "\r\n";
 
-	for (auto const& e0 : chart.noteTracks) {
+	for (auto const& e0 : chart.noteTrackNotes) {
 		std::string section = e0.first;
-		std::map<uint32_t, Note> notes = chart.noteTracks.at(section);
+		std::map<uint32_t, Note> notes = chart.noteTrackNotes.at(section);
 		std::cout << section << "\r\n" << "\r\n";
 
 		unsigned int ctime = 0; // Current time

@@ -123,43 +123,13 @@ bool Note::equalsPlayable(const Note& note) const {
 	return (value & note.value & 0x1F) == 0x1F;
 }
 
-void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteTrackEvent>& simultaneousNoteEvents) {
-	Note note;
-	note.time = simultaneousNoteEvents[0].time;
-	note.duration = simultaneousNoteEvents[0].duration;
-	note.value = 0;
-
-	std::set<uint32_t> durationSet;
-
-	// Build note bits
-	for (NoteTrackEvent evt : simultaneousNoteEvents) {
-		if (!evt.isNote())
+void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) {
+	// Write each of the active note flags out
+	for (unsigned int b = 0; b < 32; b++) {
+		if (!((value >> b) & 1))
 			continue;
-		if (!evt.isFlag())
-			durationSet.insert(evt.time);
-		note.value |= (1 << evt.value);
+		vec.push_back(NoteTrackEvent(time, b, duration));
 	}
-
-	// Assert note durations are equal
-	if (!durationSet.size() == 1) {
-		// Durations are not equal, must be an extended sustain. Let's fix it
-		std::cerr << "Unequal note durations detected at time " << note.time << "\r\n";
-		// TODO
-		// vector<Note> fixedNotes;
-		// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);
-		// // Add notes to map
-		// for (Note n: fixedNotes) {
-		// 	noteMap[n.time] = n;
-		// }
-		noteMap[note.time] = note;
-	} else {
-		// Add note to map
-		noteMap[note.time] = note;
-	}
-}
-
-void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vector) {
-
 }
 
 std::ostream& operator<<(std::ostream& os, const Note& note) {

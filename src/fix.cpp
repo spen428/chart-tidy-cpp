@@ -29,9 +29,9 @@ void fix::fixAll(Chart& chart) {
 	fixNoLeadingMeasure(chart);
 
 	// For each note track
-	for (auto it : chart.noteTracks) {
+	for (auto it : chart.noteTrackNotes) {
 		std::string section = it.first;
-		fixSustainGap(chart.noteTracks[section]);
+		fixSustainGap(chart.noteTrackNotes[section]);
 	}
 }
 
@@ -56,9 +56,9 @@ void fix::fixMissingEndEvent(Chart& chart) {
 	// Find largest end time value
 	std::string max_section;
 	uint32_t max_time = 0;
-	for (auto e0 : chart.noteTracks) {
+	for (auto e0 : chart.noteTrackNotes) {
 		std::string section = e0.first;
-		std::map<uint32_t, Note> noteTrack = chart.noteTracks[section];
+		std::map<uint32_t, Note> noteTrack = chart.noteTrackNotes[section];
 		auto reverseItr = noteTrack.rbegin();
 		if (reverseItr == noteTrack.rend())
 			continue; // No notes in this section
@@ -69,7 +69,7 @@ void fix::fixMissingEndEvent(Chart& chart) {
 	}
 
 	// Add end note value and padding to end time
-	Note& endNote = chart.noteTracks[max_section][max_time];
+	Note& endNote = chart.noteTrackNotes[max_section][max_time];
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
 	chart.events.push_back(NoteTrackEvent(max_time, "\"end\""));
@@ -116,9 +116,9 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 		evt.time += offset_game_time;
 	}
 	// Shift all notes forward
-	for (auto e0 : chart.noteTracks) {
+	for (auto e0 : chart.noteTrackNotes) {
 		std::string section = e0.first;
-		std::map<uint32_t, Note>& noteMap = chart.noteTracks[section];
+		std::map<uint32_t, Note>& noteMap = chart.noteTrackNotes[section];
 		// Build new vector
 		std::vector<Note> fixedNotes;
 		for (auto e1 : noteMap) {

@@ -37,6 +37,7 @@ const unsigned int PLAYABLE_NOTE_TOTAL = 5; // GRYBO
 const std::string NOTE_TRACK_EVENT_TYPE_EVENT = "E";
 const std::string NOTE_TRACK_EVENT_TYPE_STAR_POWER = "S";
 const std::string NOTE_TRACK_EVENT_TYPE_NOTE = "N";
+
 const std::string SYNC_TRACK_EVENT_TYPE_TEMPO = "B";
 const std::string SYNC_TRACK_EVENT_TYPE_TIMESIG = "TS";
 
@@ -114,13 +115,11 @@ public:
      */
     bool equalsPlayable(const Note& note) const;
     /**
-     * Convert this `Note` into a set of `NoteTrackEvent`s and add it to the given vector
+     * Convert this `Note` into a set of `NoteTrackEvent`s and add it to the given vector.
      */
     void toNoteTrackEvents(std::vector<NoteTrackEvent>& vector);
 
     friend std::ostream& operator<<(std::ostream& os, const Note& n);
-
-    static void parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteTrackEvent>& simultaneousNoteEvents);
 
     uint32_t time;
     /**
