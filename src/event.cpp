@@ -33,7 +33,7 @@ Event::~Event() {
 }
 
 SyncTrackEvent::SyncTrackEvent(uint32_t time, string type,
-							   uint32_t value) :
+		uint32_t value) :
 Event(time, ""), type(type), value(value) {
 }
 
@@ -118,6 +118,5 @@ void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultane
 }
 
 ostream& operator<<(ostream& os, const Note& n) {
-	return os << "[" << n.time << ", " << bitset<TOTAL_NOTE_FLAGS>(n.value) << ", " << n.duration << "]";
-	// return os << n.time << " = N " << bitset<TOTAL_NOTE_FLAGS>(n.value) << " " << n.duration;
+	return os << "[" << n.time << ", 0b" << bitset<TOTAL_NOTE_FLAGS>(n.value) << ", " << n.duration << "]";
 }

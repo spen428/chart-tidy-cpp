@@ -78,10 +78,23 @@ void fix::fixMissingEndEvent(Chart& chart) {
 }
 
 /* Note track fixes */
+
 void fix::fixNoLeadingMeasure(Chart& chart) {
-	const unsigned int max_bpmT = 9999000; // Limit in FeedBack
-	const unsigned int max_ts = 99; // Limit in FeedBack
-	const unsigned int one_second_time = 8 * 48; // Offset in game time units
+	/**
+	 * Shifts all note tracks, the sync track, and all events except for the
+	 * section at time 0 forwards by 1 second, and then inserts a "leading"
+	 * measure of length 1 second to the beginning of each note track.
+	 */
+
+	/** Numerator of the time signature of the measure that will be inserted */
+	const unsigned int insert_numerator = 2;
+	const unsigned int insert_bpmT = 120000; // BPM * 1000 of the insert measure
+	/** The offset in game time units, one measure of 2/4 is 8 x 16th notes */
+	const unsigned int offset_game_time = 8 * 48; // 48 = 1/16th in game time
+	const unsigned int offset_real_time = 1; // 1 second
+
+	// const unsigned int max_bpmT = 9999000; // Limit in FeedBack
+	/// const unsigned int max_ts = 99; // Limit in FeedBack
 
 	if (chart.offset < 1) {
 		cerr << "Cannot fix no_leading_measure: offset is less than 1" << endl;
@@ -91,16 +104,16 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	// TODO: Don't apply if not necessary
 
 	// Correct offset
-	chart.offset -= 1; // Reduce by one second (real time units)
+	chart.offset -= offset_real_time; // Reduce by one second
 
 	// Shift all events forward (except for start event) by one second (game time units)
 	// TODO: Apply also to PreviewStart/PreviewEnd IFF set
 	for (SyncTrackEvent& evt : chart.syncTrack)
-		evt.time += one_second_time;
+		evt.time += offset_game_time;
 	for (Event& evt : chart.events) {
 		if (evt.time == 0 && boost::starts_with(evt.text, "\"section"))
 			continue; // Don't move the start event
-		evt.time += one_second_time;
+		evt.time += offset_game_time;
 	}
 	// Shift all notes forward
 	for (auto e0 : chart.noteTracks) {
@@ -110,7 +123,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 		vector<Note> fixedNotes;
 		for (auto e1 : noteMap) {
 			Note note = noteMap[e1.first];
-			note.time += one_second_time;
+			note.time += offset_game_time;
 			fixedNotes.push_back(note);
 		}
 		// Clear map and rebuild with new vector
@@ -120,8 +133,10 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	}
 
 	// Add a single measure of 2/4 at 120BPM at the beginning of the song (= 1 second)
-	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "TS", 2));
-	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B", 120000));
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "TS",
+			insert_numerator));
+	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B",
+			insert_bpmT));
 
 	cerr << "Inserted leading measure" << endl;
 }
@@ -136,7 +151,7 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 		Note& prev_note = noteTrack[prev_time];
 		if (prev_note.duration > 0) { // Ignore non-sustain notes
 			if ((apply_to_repeat_notes && prev_note.equalsPlayable(note))
-				|| !prev_note.equalsPlayable(note)) { // Ignore identical notes if set
+					|| !prev_note.equalsPlayable(note)) { // Ignore identical notes if set
 				uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
 				int delta = note.time - prev_note_end_time;
 				if (delta < min_gap) {

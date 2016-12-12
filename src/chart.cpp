@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "chart.h"
+#include "debug.h"
 #include "event.h"
 
 #define TRACK_EVENT_TAP "t"
@@ -62,7 +63,7 @@ bool Chart::read(char fpath[]) {
 				if (line.at(line.length() - 1) == ']') {
 					// Section header is on its own line, usual case
 					section = line.substr(1, line.length() - 2);
-					cerr << "SECTION HEADER: " << section << endl;
+					DEBUG("SECTION HEADER: " + section);
 				} else {
 					cerr << "Unhandled syntax: " << line << endl;
 					errors = true;
@@ -70,7 +71,7 @@ bool Chart::read(char fpath[]) {
 			} else if (line == "{") {
 				// Start of section block
 				inBlock = true;
-				cerr << "BEGIN SECTION" << endl;
+				DEBUG("BEGIN SECTION");
 			} else {
 				cerr << "Illegal state for line: " << line << endl;
 				errors = true;
@@ -80,7 +81,7 @@ bool Chart::read(char fpath[]) {
 			// End of section block
 			inBlock = false;
 			section = "";
-			cerr << "END SECTION" << endl;
+			DEBUG("END SECTION");
 			continue;
 		} else {
 			if (section == SONG_SECTION) {
@@ -201,7 +202,7 @@ bool Chart::parseEventsLine(const string& line) {
  * `noteEvents`.
  */
 bool Chart::parseNoteSectionLine(map<uint32_t, vector<NoteEvent>>&noteEvents,
-									const string& line) {
+		const string& line) {
 	string key;
 	string value;
 

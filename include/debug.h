@@ -16,27 +16,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+
 #include <iostream>
-#include <string.h>
-#include "chart.h"
-#include "debug.h"
-#include "fix.h"
+#include <fstream>
 
-int main(int argc, char* argv[]) {
-	if (argc < 2) {
-		std::cerr << "You must pass a file path as an argument" << std::endl;
-		return 1;
-	}
-
-	bool feedbackSafe = false;
-	if (argc >= 3 && strcmp(argv[2], "-fb") == 0) {
-		// Whether to output FeedBack-safe notes (no HOPO/tap flag)
-		feedbackSafe = true;
-	}
-
-	Chart chart;
-	chart.read(argv[1]);
-	fix::fixAll(chart);
-	chart.print(feedbackSafe);
-	return 0;
-}
+#ifndef DEBUG_PRINT
+#define DEBUG(X) do { std::cerr << "DEBUG::" << X << std::endl; } while (0)
+#else
+#define DEBUG(X) do { } while (0)
+#endif
