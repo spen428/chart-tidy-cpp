@@ -43,7 +43,7 @@ void fix::fixMissingStartEvent(Chart& chart) {
 			return;
 
 	// Add a start section
-	chart.events.insert(chart.events.begin(), NoteEvent(0, "\"section Start\""));
+	chart.events.insert(chart.events.begin(), NoteTrackEvent(0, "\"section Start\""));
 	std::cerr << "Inserted start section at time 0" << "\r\n";
 }
 
@@ -72,7 +72,7 @@ void fix::fixMissingEndEvent(Chart& chart) {
 	Note& endNote = chart.noteTracks[max_section][max_time];
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
-	chart.events.push_back(NoteEvent(max_time, "\"end\""));
+	chart.events.push_back(NoteTrackEvent(max_time, "\"end\""));
 	std::cerr << "Inserted end event at time " << max_time << "\r\n";
 }
 
@@ -175,6 +175,6 @@ void fix::fixSustainGap(std::map<uint32_t, Note>& noteTrack) {
 	}
 }
 
-void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteEvent> simultaneousNoteEvents) {
+void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrackEvent> simultaneousNoteEvents) {
 	// TODO
 }

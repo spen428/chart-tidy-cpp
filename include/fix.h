@@ -42,7 +42,7 @@ namespace fix {
      */
     void fixNoLeadingMeasure(Chart& chart);
     void fixSustainGap(std::map<uint32_t, Note>& noteTrack);
-    void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteEvent> simultaneousNoteEvents);
+    void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrackEvent> simultaneousNoteEvents);
     void fixMissingStarPower(Chart& chart);
 
 }

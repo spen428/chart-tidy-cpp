@@ -25,61 +25,52 @@
 #include "event.h"
 
 Event::Event(uint32_t time, std::string text) :
-time(time), text(text) {
+Event(time, "E", text) {
+}
+
+Event::Event(uint32_t time, std::string type, std::string text) :
+time(time), type(type), text(text) {
 }
 
 Event::~Event() {
 }
 
-std::string Event::toEventString() {
+std::string Event::toEventString() const {
 	std::stringstream ss;
-	ss << time << " = E " << text;
+	ss << time << " = " << type << " " << text;
 	return ss.str();
 }
 
 SyncTrackEvent::SyncTrackEvent(uint32_t time, std::string type,
 		uint32_t value) :
-Event(time, ""), type(type), value(value) {
+Event(time, type, ""), value(value) {
 }
 
 SyncTrackEvent::~SyncTrackEvent() {
 }
 
-std::string SyncTrackEvent::toEventString() {
+std::string SyncTrackEvent::toEventString() const {
 	std::stringstream ss;
 	ss << time << " = " << type << " " << value;
 	return ss.str();
 }
 
-StarPowerEvent::StarPowerEvent(uint32_t time, uint32_t value, uint32_t duration) :
-Event(time, ""), value(value), duration(duration) {
+NoteTrackEvent::NoteTrackEvent(uint32_t time, std::string text) :
+Event(time, text), value(0), duration(0) {
 }
 
-StarPowerEvent::~StarPowerEvent() {
+NoteTrackEvent::NoteTrackEvent(uint32_t time, uint32_t value, uint32_t duration) :
+NoteTrackEvent(time, NOTE_TRACK_EVENT_TYPE_NOTE, value, duration) {
 }
 
-std::string StarPowerEvent::toEventString() {
-	std::stringstream ss;
-	ss <<  time << " = S " << value << " " << duration;
-	return ss.str();
+NoteTrackEvent::NoteTrackEvent(uint32_t time, std::string type, uint32_t value, uint32_t duration) :
+Event(time, type, ""), value(value), duration(duration) {
 }
 
-NoteEvent::NoteEvent(uint32_t time, std::string text) :
-Event(time, text), type(""), value(0), duration(0) {
+NoteTrackEvent::~NoteTrackEvent() {
 }
 
-NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration):
-NoteEvent("N", time, value, duration) {
-}
-
-NoteEvent::NoteEvent(std::string type, uint32_t time, uint32_t value, uint32_t duration) :
-Event(time, ""), type(type), value(value), duration(duration) {
-}
-
-NoteEvent::~NoteEvent() {
-}
-
-std::string NoteEvent::toEventString() {
+std::string NoteTrackEvent::toEventString() const {
 	if (isEvent()) {
 		return Event::toEventString();
 	}
@@ -88,21 +79,20 @@ std::string NoteEvent::toEventString() {
 	return ss.str();
 }
 
-bool NoteEvent::isEvent() {
-	return text != "";
+bool NoteTrackEvent::isEvent() const {
+	return type == NOTE_TRACK_EVENT_TYPE_EVENT;
 }
 
-bool NoteEvent::isNote() {
-	return type == "N";
+bool NoteTrackEvent::isNote() const {
+	return type == NOTE_TRACK_EVENT_TYPE_NOTE;
 }
 
-bool NoteEvent::isFlag() {
-	// HOPO flip flag is the first non-playable note value
+bool NoteTrackEvent::isFlag() const {
 	return isNote() && value >= PLAYABLE_NOTE_TOTAL;
 }
 
-bool NoteEvent::isStarPower() {
-	return type == "S";
+bool NoteTrackEvent::isStarPower() const {
+	return type == NOTE_TRACK_EVENT_TYPE_STAR_POWER;
 }
 
 Note::Note() {
@@ -111,19 +101,19 @@ Note::Note() {
 Note::~Note() {
 }
 
-bool Note::isTap() {
+bool Note::isTap() const {
 	return (value & (1 << NOTE_FLAG_VAL_TAP));
 }
 
-bool Note::isForce() {
+bool Note::isForce() const {
 	return (value & (1 << NOTE_FLAG_VAL_HOPO_FLIP));
 }
 
-bool Note::equalsPlayable(const Note& note) {
+bool Note::equalsPlayable(const Note& note) const {
 	return (value & note.value & 0x1F) == 0x1F;
 }
 
-void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteEvent>& simultaneousNoteEvents) {
+void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteTrackEvent>& simultaneousNoteEvents) {
 	Note note;
 	note.time = simultaneousNoteEvents[0].time;
 	note.duration = simultaneousNoteEvents[0].duration;
@@ -132,7 +122,7 @@ void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteEvent>&
 	std::set<uint32_t> durationSet;
 
 	// Build note bits
-	for (NoteEvent evt : simultaneousNoteEvents) {
+	for (NoteTrackEvent evt : simultaneousNoteEvents) {
 		if (!evt.isNote())
 			continue;
 		if (!evt.isFlag())

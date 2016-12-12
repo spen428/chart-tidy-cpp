@@ -34,18 +34,27 @@ const unsigned int NOTE_FLAG_VAL_TAP = 6;
 const unsigned int NOTE_FLAG_TOTAL = 7;
 const unsigned int PLAYABLE_NOTE_TOTAL = 5; // GRYBO
 
+const std::string NOTE_TRACK_EVENT_TYPE_EVENT = "E";
+const std::string NOTE_TRACK_EVENT_TYPE_STAR_POWER = "S";
+const std::string NOTE_TRACK_EVENT_TYPE_NOTE = "N";
+
 class Event {
 public:
     Event(uint32_t time, std::string text);
+    Event(uint32_t time, std::string type, std::string text);
     ~Event();
     /**
      * Return the string representation of this event as it would appear in a
      * chart file. Subclasses of `Event` should use this method to allow for
      * easy serialisation.
      */
-    virtual std::string toEventString();
+    virtual std::string toEventString() const;
 
     uint32_t time;
+    /**
+     * The "E" in the event string
+     */
+    std::string type;
     /**
      * The text that appears after the "E " in the event
      */
@@ -56,54 +65,34 @@ class SyncTrackEvent : public Event {
 public:
     SyncTrackEvent(uint32_t time, std::string type, uint32_t value);
     ~SyncTrackEvent();
-    std::string toEventString() override;
-    bool isTsChange();
-    bool isTempoChange();
+    std::string toEventString() const override;
+    bool isTsChange() const;
+    bool isTempoChange() const;
 
     std::string type;
     uint32_t value;
 };
 
-class NoteEvent : public Event {
+class NoteTrackEvent : public Event {
 public:
     /**
-     * Constructor for E type events in the note track
+     * Constructor for E-type events in the note track
      */
-    NoteEvent(uint32_t time, std::string text);
+    NoteTrackEvent(uint32_t time, std::string text);
     /**
-     * Constructor for N type events in the note track
+     * Constructor for N-type events in the note track
      */
-    NoteEvent(uint32_t time, uint32_t value, uint32_t duration);
+    NoteTrackEvent(uint32_t time, uint32_t value, uint32_t duration);
     /**
-     * Constructor for N or S type events in the note track
+     * Constructor for arbitrary-type events in the note track
      */
-    NoteEvent(std::string type, uint32_t time, uint32_t value, uint32_t duration);
-    ~NoteEvent();
-    std::string toEventString() override;
-    bool isNote();
-    bool isFlag();
-    bool isEvent();
-    bool isStarPower();
-
-    /**
-     * Letter representing this NoteEvent type (N for note/flag, S for star power)
-     */
-    std::string type;
-    /**
-     * Note value as decimal
-     */
-    uint32_t value;
-    uint32_t duration;
-};
-
-class StarPowerEvent : public Event {
-public:
-    /**
-     * Constructor for N and S type events in the note track
-     */
-    StarPowerEvent(uint32_t time, uint32_t value, uint32_t duration);
-    ~StarPowerEvent();
-    std::string toEventString() override;
+    NoteTrackEvent(uint32_t time, std::string type, uint32_t value, uint32_t duration);
+    ~NoteTrackEvent();
+    std::string toEventString() const override;
+    bool isNote() const;
+    bool isFlag() const;
+    bool isEvent() const;
+    bool isStarPower() const;
 
     /**
      * Note value as decimal
@@ -116,17 +105,17 @@ class Note {
 public:
     Note();
     ~Note();
-    bool isTap();
-    bool isForce();
+    bool isTap() const;
+    bool isForce() const;
     /**
      * True if the first 5 bits of each Note's `value` is the same, signifying that they are the same note,
      * ignoring tap/force status.
      */
-    bool equalsPlayable(const Note& note);
+    bool equalsPlayable(const Note& note) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Note& n);
 
-    static void parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteEvent>& simultaneousNoteEvents);
+    static void parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteTrackEvent>& simultaneousNoteEvents);
 
     uint32_t time;
     /**

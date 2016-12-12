@@ -47,7 +47,7 @@ bool Chart::read(char fpath[]) {
 	bool inBlock = false;
 	std::ifstream infile(fpath);
 	std::string section;
-	std::unordered_map<std::string, std::map<uint32_t, std::vector < NoteEvent>>> mNoteEvents;
+	std::unordered_map<std::string, std::map<uint32_t, std::vector < NoteTrackEvent>>> mNoteEvents;
 
 	for (std::string line; getline(infile, line);) {
 		boost::trim(line);
@@ -199,7 +199,7 @@ bool Chart::parseEventsLine(const std::string& line) {
  * Parse a line into a NoteEvent object and insert it into the vector
  * `noteEvents`.
  */
-bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteEvent>>&noteEvents,
+bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteTrackEvent>>&noteEvents,
 		const std::string& line) {
 	std::string key;
 	std::string value;
@@ -207,19 +207,19 @@ bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteEvent>>&note
 	// Get time and vector associated with it
 	splitOnce(key, value, line, '=');
 	int time = stoi(key);
-	std::vector<NoteEvent>& v = noteEvents[time];
+	std::vector<NoteTrackEvent>& v = noteEvents[time];
 
 	// Parse note
 	splitOnce(key, value, value, ' ');
 	if (key == "E") { // "E" "some event"
 		if (value == TRACK_EVENT_TAP) {
 			// Tap event
-			v.push_back(NoteEvent(time, NOTE_FLAG_VAL_TAP, 0));
+			v.push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_TAP, 0));
 			std::cerr << "Replacing track event E " << TRACK_EVENT_TAP;
 			std::cerr << " at time " << time << " with tap flag" << "\r\n";
 		} else if (value == TRACK_EVENT_HOPO_FLIP) {
 			// HOPO flip event
-			v.push_back(NoteEvent(time, NOTE_FLAG_VAL_HOPO_FLIP, 0));
+			v.push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_HOPO_FLIP, 0));
 			std::cerr << "Replacing track event E " << TRACK_EVENT_HOPO_FLIP;
 			std::cerr << " at time " << time << " with HOPO flip flag" << "\r\n";
 		} else {
@@ -234,13 +234,13 @@ bool Chart::parseNoteSectionLine(std::map<uint32_t, std::vector<NoteEvent>>&note
 		splitOnce(key, value, value, ' ');
 		int val = stoi(key);
 		int dur = stoi(value);
-		v.push_back(NoteEvent(time, val, dur));
+		v.push_back(NoteTrackEvent(time, val, dur));
 		return true;
 	}
 	return false;
 }
 
-bool Chart::parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteEvent>>>& noteEvents) {
+bool Chart::parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>>& noteEvents) {
 	bool errors = false;
 	// Iterate over map keys, which are note section names
 	for (auto it : noteEvents) {
@@ -252,7 +252,7 @@ bool Chart::parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, s
 		for (auto e1 : noteEvents[section]) {
 			// Get the NoteEvent vector for this value of `time`
 			uint32_t time = e1.first;
-			std::vector<NoteEvent> events = noteEvents[section][time];
+			std::vector<NoteTrackEvent> events = noteEvents[section][time];
 			// Parse note events into notes, inserting them into map `m`
 			Note::parseNotes(noteTrack, events);
 		}

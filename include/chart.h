@@ -55,6 +55,6 @@ private:
     bool parseSongLine(const std::string& line);
     bool parseSyncTrackLine(const std::string& line);
     bool parseEventsLine(const std::string& line);
-    bool parseNoteSectionLine(std::map<uint32_t, std::vector<NoteEvent>>&noteEvents, const std::string& line);
-    bool parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteEvent>>>& noteEvents);
+    bool parseNoteSectionLine(std::map<uint32_t, std::vector<NoteTrackEvent>>&noteEvents, const std::string& line);
+    bool parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>>& noteEvents);
 };
