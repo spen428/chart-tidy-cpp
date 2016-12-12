@@ -261,20 +261,22 @@ bool Chart::parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, s
 }
 
 bool isNoteSection(const std::string& section) {
-	return (section == "EasySingle"
-			|| section == "MediumSingle"
-			|| section == "HardSingle"
-			|| section == "ExpertSingle"
-			|| section == "HardDoubleGuitar"
-			|| section == "HardDoubleBass"
-			|| section == "HardEnhancedGuitar"
-			|| section == "HardCoopLead"
-			|| section == "HardCoopBass"
-			|| section == "Hard10KeyGuitar"
-			|| section == "HardDrums"
-			|| section == "HardDoubleDrums"
-			|| section == "HardVocals"
-			|| section == "HardKeyboard");
+	return ((boost::starts_with(section, "Easy")
+			|| boost::starts_with(section, "Medium")
+			|| boost::starts_with(section, "Hard")
+			|| boost::starts_with(section, "Expert"))
+			&&
+			(boost::ends_with(section, "Single")
+			|| boost::ends_with(section, "DoubleGuitar")
+			|| boost::ends_with(section, "DoubleBass")
+			|| boost::ends_with(section, "EnhancedGuitar")
+			|| boost::ends_with(section, "CoopLead")
+			|| boost::ends_with(section, "CoopBass")
+			|| boost::ends_with(section, "10KeyGuitar")
+			|| boost::ends_with(section, "Drums")
+			|| boost::ends_with(section, "DoubleDrums")
+			|| boost::ends_with(section, "Vocals")
+			|| boost::ends_with(section, "Keyboard")));
 }
 
 #define DEFAULT_FEEDBACK_SAFE false
