@@ -31,6 +31,7 @@ namespace fix {
     /* Chart file fixes */
     void fixMissingStartEvent(Chart& chart);
     void fixMissingEndEvent(Chart& chart);
+    void fixUnprintableCharacters(Chart& chart);
 
     /* Note track fixes */
 
@@ -42,5 +43,6 @@ namespace fix {
     void fixNoLeadingMeasure(Chart& chart);
     void fixSustainGap(std::map<uint32_t, Note>& noteTrack);
     void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteEvent> simultaneousNoteEvents);
+    void fixMissingStarPower(Chart& chart);
 
 }
