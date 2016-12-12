@@ -23,16 +23,14 @@
 #include "fix.h"
 #include "event.h"
 
-using namespace std;
-
-Event::Event(uint32_t time, string text) :
+Event::Event(uint32_t time, std::string text) :
 time(time), text(text) {
 }
 
 Event::~Event() {
 }
 
-SyncTrackEvent::SyncTrackEvent(uint32_t time, string type,
+SyncTrackEvent::SyncTrackEvent(uint32_t time, std::string type,
 		uint32_t value) :
 Event(time, ""), type(type), value(value) {
 }
@@ -40,7 +38,7 @@ Event(time, ""), type(type), value(value) {
 SyncTrackEvent::~SyncTrackEvent() {
 }
 
-NoteEvent::NoteEvent(uint32_t time, string text) :
+NoteEvent::NoteEvent(uint32_t time, std::string text) :
 Event(time, text), value(0), duration(0) {
 }
 
@@ -61,7 +59,7 @@ bool NoteEvent::isNote() {
 
 bool NoteEvent::isFlag() {
 	// HOPO flip flag is the first non-playable note value
-	return isNote() && value >= HOPO_FLIP_FLAG_VAL;
+	return isNote() && value >= NOTE_FLAG_VAL_HOPO_FLIP;
 }
 
 Note::Note() {
@@ -71,24 +69,24 @@ Note::~Note() {
 }
 
 bool Note::isTap() {
-	return (value & (1 << TAP_FLAG_VAL));
+	return (value & (1 << NOTE_FLAG_VAL_TAP));
 }
 
 bool Note::isForce() {
-	return (value & (1 << HOPO_FLIP_FLAG_VAL));
+	return (value & (1 << NOTE_FLAG_VAL_HOPO_FLIP));
 }
 
 bool Note::equalsPlayable(const Note& note) {
 	return (value & note.value & 0x1F) == 0x1F;
 }
 
-void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents) {
+void Note::parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteEvent>& simultaneousNoteEvents) {
 	Note note;
 	note.time = simultaneousNoteEvents[0].time;
 	note.duration = simultaneousNoteEvents[0].duration;
 	note.value = 0;
 
-	set<uint32_t> durationSet;
+	std::set<uint32_t> durationSet;
 
 	// Build note bits
 	for (NoteEvent evt : simultaneousNoteEvents) {
@@ -102,7 +100,7 @@ void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultane
 	// Assert note durations are equal
 	if (!durationSet.size() == 1) {
 		// Durations are not equal, must be an extended sustain. Let's fix it
-		cerr << "Unequal note durations detected at time " << note.time << "\r\n";
+		std::cerr << "Unequal note durations detected at time " << note.time << "\r\n";
 		// TODO
 		// vector<Note> fixedNotes;
 		// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);
@@ -117,6 +115,6 @@ void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultane
 	}
 }
 
-ostream& operator<<(ostream& os, const Note& n) {
-	return os << "[" << n.time << ", 0b" << bitset<TOTAL_NOTE_FLAGS>(n.value) << ", " << n.duration << "]";
+std::ostream& operator<<(std::ostream& os, const Note& note) {
+	return os << "[" << note.time << ", 0b" << std::bitset<NOTE_FLAG_TOTAL>(note.value) << ", " << note.duration << "]";
 }

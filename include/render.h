@@ -20,7 +20,7 @@
 
 #include "chart.h"
 
-namespace Renderer {
+namespace renderer {
     /**
      * Render a chart as ASCII text and print it to stdout
      */

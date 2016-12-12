@@ -24,39 +24,41 @@
 #include <vector>
 #include <iostream>
 
-#define HOPO_FLIP_FLAG_VAL 5
-#define TAP_FLAG_VAL 6
-
-const unsigned int TOTAL_NOTE_FLAGS = 7;
-
-using namespace std;
+const unsigned int NOTE_FLAG_VAL_GREEN = 0;
+const unsigned int NOTE_FLAG_VAL_RED = 1;
+const unsigned int NOTE_FLAG_VAL_YELLOW = 2;
+const unsigned int NOTE_FLAG_VAL_BLUE = 3;
+const unsigned int NOTE_FLAG_VAL_ORANGE = 4;
+const unsigned int NOTE_FLAG_VAL_HOPO_FLIP = 5;
+const unsigned int NOTE_FLAG_VAL_TAP = 6;
+const unsigned int NOTE_FLAG_TOTAL = 7;
 
 class Event {
 public:
-    Event(uint32_t time, string text);
+    Event(uint32_t time, std::string text);
     ~Event();
 
     uint32_t time;
     /**
      * The text that appears after the "E " in the event
      */
-    string text;
+    std::string text;
 };
 
 class SyncTrackEvent : public Event {
 public:
-    SyncTrackEvent(uint32_t time, string type, uint32_t value);
+    SyncTrackEvent(uint32_t time, std::string type, uint32_t value);
     ~SyncTrackEvent();
     bool isTsChange();
     bool isTempoChange();
 
-    string type;
+    std::string type;
     uint32_t value;
 };
 
 class NoteEvent : public Event {
 public:
-    NoteEvent(uint32_t time, string text);
+    NoteEvent(uint32_t time, std::string text);
     NoteEvent(uint32_t time, uint32_t value, uint32_t duration);
     ~NoteEvent();
     bool isNote();
@@ -82,9 +84,9 @@ public:
      */
     bool equalsPlayable(const Note& note);
 
-    friend ostream& operator<<(ostream& os, const Note& n);
+    friend std::ostream& operator<<(std::ostream& os, const Note& n);
 
-    static void parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents);
+    static void parseNotes(std::map<uint32_t, Note>& noteMap, std::vector<NoteEvent>& simultaneousNoteEvents);
 
     uint32_t time;
     /**

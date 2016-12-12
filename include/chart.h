@@ -24,8 +24,6 @@
 
 #include "event.h"
 
-using namespace std;
-
 class Chart {
 public:
     Chart();
@@ -35,28 +33,28 @@ public:
     void print(bool feedbackSafe);
 
     // [Song]
-    string name;
-    string artist;
-    string charter;
+    std::string name;
+    std::string artist;
+    std::string charter;
     double offset;
     int resolution;
-    string player2;
+    std::string player2;
     int difficulty;
     double previewStart;
     double previewEnd;
-    string genre;
-    string mediaType;
-    string musicStream;
+    std::string genre;
+    std::string mediaType;
+    std::string musicStream;
     // [SyncTrack]
-    vector<SyncTrackEvent> syncTrack;
+    std::vector<SyncTrackEvent> syncTrack;
     // [Events]
-    vector<Event> events;
+    std::vector<Event> events;
     // Note tracks, e.g. [ExpertSingle]
-    unordered_map<string, map<uint32_t, Note>> noteTracks;
+    std::unordered_map<std::string, std::map<uint32_t, Note>> noteTracks;
 private:
-    bool parseSongLine(const string& line);
-    bool parseSyncTrackLine(const string& line);
-    bool parseEventsLine(const string& line);
-    bool parseNoteSectionLine(map<uint32_t, vector<NoteEvent>>&noteEvents, const string& line);
-    bool parseNoteEvents(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents);
+    bool parseSongLine(const std::string& line);
+    bool parseSyncTrackLine(const std::string& line);
+    bool parseEventsLine(const std::string& line);
+    bool parseNoteSectionLine(std::map<uint32_t, std::vector<NoteEvent>>&noteEvents, const std::string& line);
+    bool parseNoteEvents(std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteEvent>>>& noteEvents);
 };

@@ -22,8 +22,6 @@
 #include "FeedBack.h"
 #include "fix.h"
 
-using namespace std;
-
 void fix::fixAll(Chart& chart) {
 	// TODO
 	fixMissingStartEvent(chart);
@@ -32,7 +30,7 @@ void fix::fixAll(Chart& chart) {
 
 	// For each note track
 	for (auto it : chart.noteTracks) {
-		string section = it.first;
+		std::string section = it.first;
 		fixSustainGap(chart.noteTracks[section]);
 	}
 }
@@ -46,7 +44,7 @@ void fix::fixMissingStartEvent(Chart& chart) {
 
 	// Add a start section
 	chart.events.insert(chart.events.begin(), NoteEvent(0, "\"section Start\""));
-	cerr << "Inserted start section at time 0" << "\r\n";
+	std::cerr << "Inserted start section at time 0" << "\r\n";
 }
 
 void fix::fixMissingEndEvent(Chart& chart) {
@@ -56,16 +54,16 @@ void fix::fixMissingEndEvent(Chart& chart) {
 			return;
 
 	// Find largest end time value
-	string max_section;
+	std::string max_section;
 	uint32_t max_time = 0;
 	for (auto e0 : chart.noteTracks) {
-		string section = e0.first;
-		auto m = chart.noteTracks[section];
-		auto rit = m.rbegin();
-		if (rit == m.rend())
+		std::string section = e0.first;
+		std::map<uint32_t, Note> noteTrack = chart.noteTracks[section];
+		auto reverseItr = noteTrack.rbegin();
+		if (reverseItr == noteTrack.rend())
 			continue; // No notes in this section
-		if (max_time < rit->first) {
-			max_time = rit->first; // Found new biggest time value
+		if (max_time < reverseItr->first) {
+			max_time = reverseItr->first; // Found new biggest time value
 			max_section = section;
 		}
 	}
@@ -75,7 +73,7 @@ void fix::fixMissingEndEvent(Chart& chart) {
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
 	chart.events.push_back(NoteEvent(max_time, "\"end\""));
-	cerr << "Inserted end event at time " << max_time << "\r\n";
+	std::cerr << "Inserted end event at time " << max_time << "\r\n";
 }
 
 /* Note track fixes */
@@ -99,7 +97,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	/// const unsigned int max_ts = 99; // Limit in FeedBack
 
 	if (chart.offset < 1) {
-		cerr << "Cannot fix no_leading_measure: offset is less than 1" << "\r\n";
+		std::cerr << "Cannot fix no_leading_measure: offset is less than 1" << "\r\n";
 		return;
 	}
 
@@ -119,10 +117,10 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	}
 	// Shift all notes forward
 	for (auto e0 : chart.noteTracks) {
-		string section = e0.first;
-		map<uint32_t, Note>& noteMap = chart.noteTracks[section];
+		std::string section = e0.first;
+		std::map<uint32_t, Note>& noteMap = chart.noteTracks[section];
 		// Build new vector
-		vector<Note> fixedNotes;
+		std::vector<Note> fixedNotes;
 		for (auto e1 : noteMap) {
 			Note note = noteMap[e1.first];
 			note.time += offset_game_time;
@@ -130,8 +128,9 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 		}
 		// Clear map and rebuild with new vector
 		noteMap.clear();
-		for (auto note : fixedNotes)
+		for (Note note : fixedNotes) {
 			noteMap[note.time] = note;
+		}
 	}
 
 	// Add the insert measure
@@ -140,11 +139,11 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	chart.syncTrack.insert(chart.syncTrack.begin(), SyncTrackEvent(0, "B",
 			insert_bpmT));
 
-	cerr << "Inserted leading measure of " << insert_numerator << "/4 at ";
-	cerr << (insert_bpmT / 1000) << " BPM" << "\r\n";
+	std::cerr << "Inserted leading measure of " << insert_numerator << "/4 at ";
+	std::cerr << (insert_bpmT / 1000) << " BPM" << "\r\n";
 }
 
-void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
+void fix::fixSustainGap(std::map<uint32_t, Note>& noteTrack) {
 	const uint32_t min_gap = DURATION_1_32;
 	/** If the next note is identical, should the fix still be applied? */
 	const bool apply_to_repeat_notes = false;
@@ -159,8 +158,8 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 				uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
 				int delta = note.time - prev_note_end_time;
 				if (delta < min_gap) {
-					cerr << "Sustain gap too small between " << prev_note << " and " << note << "\r\n";
-					cerr << "Duration changed from " << prev_note.duration << " to ";
+					std::cerr << "Sustain gap too small between " << prev_note << " and " << note << "\r\n";
+					std::cerr << "Duration changed from " << prev_note.duration << " to ";
 
 					// Do fix
 					delta = min_gap - delta;
@@ -168,7 +167,7 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 						delta = prev_note.duration;
 					prev_note.duration -= delta;
 
-					cerr << prev_note.duration << " (-" << delta << ")" << "\r\n";
+					std::cerr << prev_note.duration << " (-" << delta << ")" << "\r\n";
 				}
 			}
 		}
@@ -176,6 +175,6 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 	}
 }
 
-void fix::fixUnequalNoteDurations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents) {
+void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteEvent> simultaneousNoteEvents) {
 	// TODO
 }

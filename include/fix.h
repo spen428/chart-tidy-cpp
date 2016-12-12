@@ -40,7 +40,7 @@ namespace fix {
      * start of a song.
      */
     void fixNoLeadingMeasure(Chart& chart);
-    void fixSustainGap(map<uint32_t, Note>& noteTrack);
-    void fixUnequalNoteDurations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents);
+    void fixSustainGap(std::map<uint32_t, Note>& noteTrack);
+    void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteEvent> simultaneousNoteEvents);
 
 }

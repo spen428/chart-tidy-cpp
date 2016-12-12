@@ -20,27 +20,25 @@
 
 #include "render.h"
 
-using namespace std;
+void draw(std::string(&lines)[5], char c);
+void draw(std::string(&lines)[5], char (&c)[5]);
 
-void draw(string(&lines)[5], char c);
-void draw(string(&lines)[5], char (&c)[5]);
-
-void Renderer::chartToText(const Chart& chart) {
+void renderer::chartToText(const Chart& chart) {
 	const unsigned int measures_per_line = 1;
 	const unsigned int unit_time = 48;
 
-	cout << "Name:   \t" << chart.name << "\r\n";
-	cout << "Artist: \t" << chart.artist << "\r\n";
-	cout << "Charter:\t" << chart.charter << "\r\n";
-	cout << "\r\n";
+	std::cout << "Name:   \t" << chart.name << "\r\n";
+	std::cout << "Artist: \t" << chart.artist << "\r\n";
+	std::cout << "Charter:\t" << chart.charter << "\r\n";
+	std::cout << "\r\n";
 
 	for (auto const& e0 : chart.noteTracks) {
-		string section = e0.first;
-		map<uint32_t, Note> notes = chart.noteTracks.at(section);
-		cout << section << "\r\n" << "\r\n";
+		std::string section = e0.first;
+		std::map<uint32_t, Note> notes = chart.noteTracks.at(section);
+		std::cout << section << "\r\n" << "\r\n";
 
 		unsigned int ctime = 0; // Current time
-		string lines[5] = {"G", "R", "Y", "B", "O"};
+		std::string lines[5] = {"G", "R", "Y", "B", "O"};
 		draw(lines, '|');
 		for (auto const& e1 : notes) {
 			uint32_t time = e1.first;
@@ -57,7 +55,7 @@ void Renderer::chartToText(const Chart& chart) {
 			for (unsigned int b = 0; b < 5; b++)
 				if ((note.value >> b) & 1)
 					c[b] = 'x';
-			if ((note.value >> TAP_FLAG_VAL) & 1) {
+			if ((note.value >> NOTE_FLAG_VAL_TAP) & 1) {
 				// Convert to taps
 				for (int i = 0; i < 5; i++)
 					if (c[i] == 'x')
@@ -67,16 +65,16 @@ void Renderer::chartToText(const Chart& chart) {
 		}
 		draw(lines, '|');
 		for (auto s : lines)
-			cout << s << "\r\n";
+			std::cout << s << "\r\n";
 	}
 }
 
-void draw(string(&lines)[5], char c) {
+void draw(std::string(&lines)[5], char c) {
 	char ca[5] = {c, c, c, c, c};
 	draw(lines, ca);
 }
 
-void draw(string(&lines)[5], char (&c)[5]) {
+void draw(std::string(&lines)[5], char (&c)[5]) {
 	for (int i = 0; i < 5; i++)
 		*(lines + i) += *(c + i);
 
@@ -87,8 +85,8 @@ void draw(string(&lines)[5], char (&c)[5]) {
 	} else if (lines[0].length() == 96 + 3) {
 		draw(lines, '|');
 		for (auto s : lines)
-			cout << s << "\r\n";
-		cout << "\r\n";
+			std::cout << s << "\r\n";
+		std::cout << "\r\n";
 		for (int i = 0; i < 5; i++)
 			lines[i].clear();
 		lines[0] += 'G';
