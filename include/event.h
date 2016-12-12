@@ -84,7 +84,7 @@ public:
 
     friend ostream& operator<<(ostream& os, const Note& n);
 
-    static void parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents);
+    static void parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents);
 
     uint32_t time;
     /**

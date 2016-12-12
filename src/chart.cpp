@@ -34,8 +34,8 @@
 
 using namespace std;
 
-void split_once(string& first, string& second, string str);
-bool is_note_section(const string& section);
+void splitOnce(string& first, string& second, string str);
+bool isNoteSection(const string& section);
 
 Chart::Chart() {
 }
@@ -45,7 +45,7 @@ Chart::~Chart() {
 
 bool Chart::read(char fpath[]) {
 	bool errors = false;
-	bool in_block = false;
+	bool inBlock = false;
 	ifstream infile(fpath);
 	string section = "";
 	unordered_map<string, map<uint32_t, vector < NoteEvent>>> mNoteEvents;
@@ -56,7 +56,7 @@ bool Chart::read(char fpath[]) {
 		if (line == "")
 			continue; // Skip blank lines
 
-		if (!in_block) {
+		if (!inBlock) {
 			if (section == "" && line.at(0) == '[') {
 				// Begin section header
 				if (line.at(line.length() - 1) == ']') {
@@ -69,7 +69,7 @@ bool Chart::read(char fpath[]) {
 				}
 			} else if (line == "{") {
 				// Start of section block
-				in_block = true;
+				inBlock = true;
 				cerr << "BEGIN SECTION" << endl;
 			} else {
 				cerr << "Illegal state for line: " << line << endl;
@@ -78,23 +78,23 @@ bool Chart::read(char fpath[]) {
 			continue;
 		} else if (line == "}") {
 			// End of section block
-			in_block = false;
+			inBlock = false;
 			section = "";
 			cerr << "END SECTION" << endl;
 			continue;
 		} else {
 			if (section == SONG_SECTION) {
-				if (parse_song_line(line))
+				if (parseSongLine(line))
 					continue;
 			} else if (section == SYNC_TRACK_SECTION) {
-				if (parse_sync_track_line(line))
+				if (parseSyncTrackLine(line))
 					continue;
 			} else if (section == EVENTS_SECTION) {
-				if (parse_events_line(line))
+				if (parseEventsLine(line))
 					continue;
 			} else {
-				if (is_note_section(section)) {
-					if (parse_note_section_line(mNoteEvents[section], line))
+				if (isNoteSection(section)) {
+					if (parseNoteSectionLine(mNoteEvents[section], line))
 						continue;
 				} else {
 					cerr << "Unknown section: " << section << endl;
@@ -106,7 +106,7 @@ bool Chart::read(char fpath[]) {
 		errors = true;
 	}
 	infile.close();
-	if (!parse_note_events(mNoteEvents))
+	if (!parseNoteEvents(mNoteEvents))
 		errors = true;
 	return !errors;
 }
@@ -116,7 +116,7 @@ bool Chart::read(char fpath[]) {
  * whitespace from them. If `delim` is not found in `str`, `first` will equal
  * `str` after trimming and `second` will equal "".
  */
-void split_once(string& first, string& second, const string& str, char delim) {
+void splitOnce(string& first, string& second, const string& str, char delim) {
 	const auto idx = str.find_first_of(delim);
 	if (string::npos != idx) {
 		first = str.substr(0, idx);
@@ -129,10 +129,10 @@ void split_once(string& first, string& second, const string& str, char delim) {
 	boost::trim(second);
 }
 
-bool Chart::parse_song_line(const string& line) {
+bool Chart::parseSongLine(const string& line) {
 	string key;
 	string value;
-	split_once(key, value, line, '=');
+	splitOnce(key, value, line, '=');
 	if (key == "Name") {
 		name = value;
 	} else if (key == "Artist") {
@@ -164,31 +164,31 @@ bool Chart::parse_song_line(const string& line) {
 	return true;
 }
 
-bool Chart::parse_sync_track_line(const string& line) {
+bool Chart::parseSyncTrackLine(const string& line) {
 	string key;
 	string value;
 
 	// Get time
-	split_once(key, value, line, '=');
+	splitOnce(key, value, line, '=');
 	int time = stoi(key);
 
 	// Get event details
-	split_once(key, value, value, ' ');
+	splitOnce(key, value, value, ' ');
 	int val = stoi(value);
 	syncTrack.push_back(SyncTrackEvent(time, key, val));
 	return true;
 }
 
-bool Chart::parse_events_line(const string& line) {
+bool Chart::parseEventsLine(const string& line) {
 	string key;
 	string value;
 
 	// Get time
-	split_once(key, value, line, '=');
+	splitOnce(key, value, line, '=');
 	int time = stoi(key);
 
 	// Get event details
-	split_once(key, value, value, ' ');
+	splitOnce(key, value, value, ' ');
 	if (key == "E") {
 		events.push_back(Event(time, value));
 		return true;
@@ -200,18 +200,18 @@ bool Chart::parse_events_line(const string& line) {
  * Parse a line into a NoteEvent object and insert it into the vector
  * `noteEvents`.
  */
-bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>&noteEvents,
+bool Chart::parseNoteSectionLine(map<uint32_t, vector<NoteEvent>>&noteEvents,
 									const string& line) {
 	string key;
 	string value;
 
 	// Get time and vector associated with it
-	split_once(key, value, line, '=');
+	splitOnce(key, value, line, '=');
 	int time = stoi(key);
 	vector<NoteEvent>& v = noteEvents[time];
 
 	// Parse note
-	split_once(key, value, value, ' ');
+	splitOnce(key, value, value, ' ');
 	if (key == "E") { // "E" "some event"
 		if (value == TRACK_EVENT_TAP) {
 			// Tap event
@@ -232,7 +232,7 @@ bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>&noteEvents,
 		return true;
 	} else if (key == "N") { // "N" "5 0"
 		// Note
-		split_once(key, value, value, ' ');
+		splitOnce(key, value, value, ' ');
 		int val = stoi(key);
 		int dur = stoi(value);
 		v.push_back(NoteEvent(time, val, dur));
@@ -241,13 +241,13 @@ bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>&noteEvents,
 	return false;
 }
 
-bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents) {
+bool Chart::parseNoteEvents(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents) {
 	bool errors = false;
 	// Iterate over map keys, which are note section names
-	for (auto e0 : noteEvents) {
+	for (auto it : noteEvents) {
 		// Get the note map for this section
-		string section = e0.first;
-		map<uint32_t, Note>& m = noteSections[section];
+		string section = it.first;
+		map<uint32_t, Note>& noteTrack = noteTracks[section];
 
 		// Iterate over submap keys, which are values of `time`
 		for (auto e1 : noteEvents[section]) {
@@ -255,13 +255,13 @@ bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEve
 			uint32_t time = e1.first;
 			vector<NoteEvent> events = noteEvents[section][time];
 			// Parse note events into notes, inserting them into map `m`
-			Note::parse_notes(m, events);
+			Note::parseNotes(noteTrack, events);
 		}
 	}
 	return !errors;
 }
 
-bool is_note_section(const string& section) {
+bool isNoteSection(const string& section) {
 	return (section == "EasySingle"
 			|| section == "MediumSingle"
 			|| section == "HardSingle"
@@ -286,7 +286,7 @@ void Chart::print() {
 	print(DEFAULT_FEEDBACK_SAFE);
 }
 
-void Chart::print(bool feedback_safe) {
+void Chart::print(bool feedbackSafe) {
 	BEGIN_SECTION(SONG_SECTION);
 	cout << '\t' << "Name" << " = " << name << endl;
 	cout << '\t' << "Artist" << " = " << artist << endl;
@@ -316,9 +316,9 @@ void Chart::print(bool feedback_safe) {
 	END_SECTION();
 
 	// Iterate over each note section
-	for (auto const& e0 : noteSections) {
+	for (auto const& e0 : noteTracks) {
 		string section = e0.first;
-		map<uint32_t, Note>& notes = noteSections[section];
+		map<uint32_t, Note>& notes = noteTracks[section];
 
 		BEGIN_SECTION(section);
 
@@ -333,7 +333,7 @@ void Chart::print(bool feedback_safe) {
 					continue;
 				cout << '\t' << note.time << " = ";
 				if (b >= HOPO_FLIP_FLAG_VAL) {
-					if (feedback_safe) {
+					if (feedbackSafe) {
 						if (b == HOPO_FLIP_FLAG_VAL) {
 							cout << "E " << TRACK_EVENT_HOPO_FLIP << endl;
 						} else if (b == TAP_FLAG_VAL) {

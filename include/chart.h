@@ -32,7 +32,7 @@ public:
     ~Chart();
     bool read(char fpath[]);
     void print();
-    void print(bool feedback_safe);
+    void print(bool feedbackSafe);
 
     // [Song]
     string name;
@@ -51,12 +51,12 @@ public:
     vector<SyncTrackEvent> syncTrack;
     // [Events]
     vector<Event> events;
-    // Note sections
-    unordered_map<string, map<uint32_t, Note>> noteSections;
+    // Note tracks, e.g. [ExpertSingle]
+    unordered_map<string, map<uint32_t, Note>> noteTracks;
 private:
-    bool parse_song_line(const string& line);
-    bool parse_sync_track_line(const string& line);
-    bool parse_events_line(const string& line);
-    bool parse_note_section_line(map<uint32_t, vector<NoteEvent>>&noteEvents, const string& line);
-    bool parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents);
+    bool parseSongLine(const string& line);
+    bool parseSyncTrackLine(const string& line);
+    bool parseEventsLine(const string& line);
+    bool parseNoteSectionLine(map<uint32_t, vector<NoteEvent>>&noteEvents, const string& line);
+    bool parseNoteEvents(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents);
 };

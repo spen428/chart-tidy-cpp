@@ -25,7 +25,7 @@ using namespace std;
 void draw(string(&lines)[5], char c);
 void draw(string(&lines)[5], char (&c)[5]);
 
-void Renderer::chart_to_text(const Chart& chart) {
+void Renderer::chartToText(const Chart& chart) {
 	const unsigned int measures_per_line = 1;
 	const unsigned int unit_time = 48;
 
@@ -34,9 +34,9 @@ void Renderer::chart_to_text(const Chart& chart) {
 	cout << "Charter:\t" << chart.charter << endl;
 	cout << endl;
 
-	for (auto const& e0 : chart.noteSections) {
+	for (auto const& e0 : chart.noteTracks) {
 		string section = e0.first;
-		map<uint32_t, Note> notes = chart.noteSections.at(section);
+		map<uint32_t, Note> notes = chart.noteTracks.at(section);
 		cout << section << endl << endl;
 
 		unsigned int ctime = 0; // Current time

@@ -23,21 +23,21 @@
 
 using namespace std;
 
-void fix::fix_all(Chart& chart) {
+void fix::fixAll(Chart& chart) {
 	// TODO
-	fix_missing_start_event(chart);
-	fix_missing_end_event(chart);
-	fix_no_leading_measure(chart);
+	fixMissingStartEvent(chart);
+	fixMissingEndEvent(chart);
+	fixNoLeadingMeasure(chart);
 
 	// For each note track
-	for (auto it : chart.noteSections) {
+	for (auto it : chart.noteTracks) {
 		string section = it.first;
-		fix_sustain_gap(chart.noteSections[section]);
+		fixSustainGap(chart.noteTracks[section]);
 	}
 }
 
 /* Chart file fixes */
-void fix::fix_missing_start_event(Chart& chart) {
+void fix::fixMissingStartEvent(Chart& chart) {
 	// Return if section already exists
 	for (Event evt : chart.events)
 		if (evt.time == 0 && boost::starts_with(evt.text, "\"section"))
@@ -48,7 +48,7 @@ void fix::fix_missing_start_event(Chart& chart) {
 	cerr << "Inserted start section at time 0" << endl;
 }
 
-void fix::fix_missing_end_event(Chart& chart) {
+void fix::fixMissingEndEvent(Chart& chart) {
 	// Return if section already exists
 	for (Event evt : chart.events)
 		if (evt.text == "\"end\"")
@@ -57,9 +57,9 @@ void fix::fix_missing_end_event(Chart& chart) {
 	// Find largest end time value
 	string max_section;
 	uint32_t max_time = 0;
-	for (auto e0 : chart.noteSections) {
+	for (auto e0 : chart.noteTracks) {
 		string section = e0.first;
-		auto m = chart.noteSections[section];
+		auto m = chart.noteTracks[section];
 		auto rit = m.rbegin();
 		if (rit == m.rend())
 			continue; // No notes in this section
@@ -70,7 +70,7 @@ void fix::fix_missing_end_event(Chart& chart) {
 	}
 
 	// Add end note value and padding to end time
-	Note& endNote = chart.noteSections[max_section][max_time];
+	Note& endNote = chart.noteTracks[max_section][max_time];
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
 	chart.events.push_back(NoteEvent(max_time, "\"end\""));
@@ -78,7 +78,7 @@ void fix::fix_missing_end_event(Chart& chart) {
 }
 
 /* Note track fixes */
-void fix::fix_no_leading_measure(Chart& chart) {
+void fix::fixNoLeadingMeasure(Chart& chart) {
 	const unsigned int max_bpmT = 9999000; // Limit in FeedBack
 	const unsigned int max_ts = 99; // Limit in FeedBack
 	const unsigned int one_second_time = 8 * 48; // Offset in game time units
@@ -103,9 +103,9 @@ void fix::fix_no_leading_measure(Chart& chart) {
 		evt.time += one_second_time;
 	}
 	// Shift all notes forward
-	for (auto e0 : chart.noteSections) {
+	for (auto e0 : chart.noteTracks) {
 		string section = e0.first;
-		map<uint32_t, Note>& noteMap = chart.noteSections[section];
+		map<uint32_t, Note>& noteMap = chart.noteTracks[section];
 		// Build new vector
 		vector<Note> fixedNotes;
 		for (auto e1 : noteMap) {
@@ -126,7 +126,7 @@ void fix::fix_no_leading_measure(Chart& chart) {
 	cerr << "Inserted leading measure" << endl;
 }
 
-void fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack) {
+void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 	const uint32_t min_gap = 24; // 1/32 note
 	const bool apply_to_repeat_notes = false; // If the next note is identical, should the fix still be applied?
 	auto it = noteTrack.begin();
@@ -157,6 +157,6 @@ void fix::fix_sustain_gap(map<uint32_t, Note>& noteTrack) {
 	}
 }
 
-void fix::fix_unequal_note_durations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents) {
+void fix::fixUnequalNoteDurations(vector<Note>& fixed, vector<NoteEvent> simultaneousNoteEvents) {
 	// TODO
 }
