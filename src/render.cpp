@@ -29,15 +29,15 @@ void Renderer::chartToText(const Chart& chart) {
 	const unsigned int measures_per_line = 1;
 	const unsigned int unit_time = 48;
 
-	cout << "Name:   \t" << chart.name << endl;
-	cout << "Artist: \t" << chart.artist << endl;
-	cout << "Charter:\t" << chart.charter << endl;
-	cout << endl;
+	cout << "Name:   \t" << chart.name << "\r\n";
+	cout << "Artist: \t" << chart.artist << "\r\n";
+	cout << "Charter:\t" << chart.charter << "\r\n";
+	cout << "\r\n";
 
 	for (auto const& e0 : chart.noteTracks) {
 		string section = e0.first;
 		map<uint32_t, Note> notes = chart.noteTracks.at(section);
-		cout << section << endl << endl;
+		cout << section << "\r\n" << "\r\n";
 
 		unsigned int ctime = 0; // Current time
 		string lines[5] = {"G", "R", "Y", "B", "O"};
@@ -67,7 +67,7 @@ void Renderer::chartToText(const Chart& chart) {
 		}
 		draw(lines, '|');
 		for (auto s : lines)
-			cout << s << endl;
+			cout << s << "\r\n";
 	}
 }
 
@@ -87,8 +87,8 @@ void draw(string(&lines)[5], char (&c)[5]) {
 	} else if (lines[0].length() == 96 + 3) {
 		draw(lines, '|');
 		for (auto s : lines)
-			cout << s << endl;
-		cout << endl;
+			cout << s << "\r\n";
+		cout << "\r\n";
 		for (int i = 0; i < 5; i++)
 			lines[i].clear();
 		lines[0] += 'G';

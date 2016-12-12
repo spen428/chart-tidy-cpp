@@ -102,7 +102,7 @@ void Note::parseNotes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultane
 	// Assert note durations are equal
 	if (!durationSet.size() == 1) {
 		// Durations are not equal, must be an extended sustain. Let's fix it
-		cerr << "Unequal note durations detected at time " << note.time << endl;
+		cerr << "Unequal note durations detected at time " << note.time << "\r\n";
 		// TODO
 		// vector<Note> fixedNotes;
 		// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);

@@ -22,7 +22,7 @@
 #include <fstream>
 
 #ifndef DEBUG_PRINT
-#define DEBUG(X) do { std::cerr << "DEBUG::" << X << std::endl; } while (0)
+#define DEBUG(X) do { std::cerr << "DEBUG::" << X << "\r\n"; } while (0)
 #else
 #define DEBUG(X) do { } while (0)
 #endif

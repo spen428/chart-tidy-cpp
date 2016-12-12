@@ -23,7 +23,7 @@
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
-		std::cerr << "You must pass a file path as an argument" << std::endl;
+		std::cerr << "You must pass a file path as an argument" << "\r\n";
 		return 1;
 	}
 

@@ -65,7 +65,7 @@ bool Chart::read(char fpath[]) {
 					section = line.substr(1, line.length() - 2);
 					DEBUG("SECTION HEADER: " + section);
 				} else {
-					cerr << "Unhandled syntax: " << line << endl;
+					cerr << "Unhandled syntax: " << line << "\r\n";
 					errors = true;
 				}
 			} else if (line == "{") {
@@ -73,7 +73,7 @@ bool Chart::read(char fpath[]) {
 				inBlock = true;
 				DEBUG("BEGIN SECTION");
 			} else {
-				cerr << "Illegal state for line: " << line << endl;
+				cerr << "Illegal state for line: " << line << "\r\n";
 				errors = true;
 			}
 			continue;
@@ -98,12 +98,12 @@ bool Chart::read(char fpath[]) {
 					if (parseNoteSectionLine(mNoteEvents[section], line))
 						continue;
 				} else {
-					cerr << "Unknown section: " << section << endl;
+					cerr << "Unknown section: " << section << "\r\n";
 					errors = true;
 				}
 			}
 		}
-		cerr << "Unexpected line: " << line << endl;
+		cerr << "Unexpected line: " << line << "\r\n";
 		errors = true;
 	}
 	infile.close();
@@ -159,7 +159,7 @@ bool Chart::parseSongLine(const string& line) {
 	} else if (key == "MusicStream") {
 		musicStream = value;
 	} else {
-		cerr << "Unknown key: " << key << endl;
+		cerr << "Unknown key: " << key << "\r\n";
 		return false;
 	}
 	return true;
@@ -218,17 +218,17 @@ bool Chart::parseNoteSectionLine(map<uint32_t, vector<NoteEvent>>&noteEvents,
 			// Tap event
 			v.push_back(NoteEvent(time, TAP_FLAG_VAL, 0));
 			cerr << "Replacing track event E " << TRACK_EVENT_TAP;
-			cerr << " at time " << time << " with tap flag" << endl;
+			cerr << " at time " << time << " with tap flag" << "\r\n";
 		} else if (value == TRACK_EVENT_HOPO_FLIP) {
 			// HOPO flip event
 			v.push_back(NoteEvent(time, HOPO_FLIP_FLAG_VAL, 0));
 			cerr << "Replacing track event E " << TRACK_EVENT_HOPO_FLIP;
-			cerr << " at time " << time << " with HOPO flip flag" << endl;
+			cerr << " at time " << time << " with HOPO flip flag" << "\r\n";
 		} else {
 			// Other track event
 			// v.push_back(NoteEvent(time, value));
 			cerr << "Removing unknown track event E " << value;
-			cerr << " at time " << time << endl;
+			cerr << " at time " << time << "\r\n";
 		}
 		return true;
 	} else if (key == "N") { // "N" "5 0"
@@ -280,8 +280,8 @@ bool isNoteSection(const string& section) {
 }
 
 #define DEFAULT_FEEDBACK_SAFE false
-#define BEGIN_SECTION(X) cout << "[" << X << "]" << endl << "{" << endl
-#define END_SECTION() cout << "}" << endl
+#define BEGIN_SECTION(X) cout << "[" << X << "]" << "\r\n" << "{" << "\r\n"
+#define END_SECTION() cout << "}" << "\r\n"
 
 void Chart::print() {
 	print(DEFAULT_FEEDBACK_SAFE);
@@ -289,30 +289,30 @@ void Chart::print() {
 
 void Chart::print(bool feedbackSafe) {
 	BEGIN_SECTION(SONG_SECTION);
-	cout << '\t' << "Name" << " = " << name << endl;
-	cout << '\t' << "Artist" << " = " << artist << endl;
-	cout << '\t' << "Charter" << " = " << charter << endl;
-	cout << '\t' << "Offset" << " = " << offset << endl;
-	cout << '\t' << "Resolution" << " = " << resolution << endl;
-	cout << '\t' << "Player2" << " = " << player2 << endl;
-	cout << '\t' << "Difficulty" << " = " << difficulty << endl;
+	cout << '\t' << "Name" << " = " << name << "\r\n";
+	cout << '\t' << "Artist" << " = " << artist << "\r\n";
+	cout << '\t' << "Charter" << " = " << charter << "\r\n";
+	cout << '\t' << "Offset" << " = " << offset << "\r\n";
+	cout << '\t' << "Resolution" << " = " << resolution << "\r\n";
+	cout << '\t' << "Player2" << " = " << player2 << "\r\n";
+	cout << '\t' << "Difficulty" << " = " << difficulty << "\r\n";
 	// TODO: How many d.p. are expected?
-	cout << '\t' << "PreviewStart" << " = " << previewStart << endl;
-	cout << '\t' << "PreviewEnd" << " = " << previewEnd << endl;
-	cout << '\t' << "Genre" << " = " << genre << endl;
-	cout << '\t' << "MediaType" << " = " << mediaType << endl;
-	cout << '\t' << "MusicStream" << " = " << musicStream << endl;
+	cout << '\t' << "PreviewStart" << " = " << previewStart << "\r\n";
+	cout << '\t' << "PreviewEnd" << " = " << previewEnd << "\r\n";
+	cout << '\t' << "Genre" << " = " << genre << "\r\n";
+	cout << '\t' << "MediaType" << " = " << mediaType << "\r\n";
+	cout << '\t' << "MusicStream" << " = " << musicStream << "\r\n";
 	END_SECTION();
 
 	BEGIN_SECTION(SYNC_TRACK_SECTION);
 	for (auto const& evt : syncTrack) {
-		cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << endl;
+		cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << "\r\n";
 	}
 	END_SECTION();
 
 	BEGIN_SECTION(EVENTS_SECTION);
 	for (auto const& evt : events) {
-		cout << '\t' << evt.time << " = E " << evt.text << endl;
+		cout << '\t' << evt.time << " = E " << evt.text << "\r\n";
 	}
 	END_SECTION();
 
@@ -336,20 +336,20 @@ void Chart::print(bool feedbackSafe) {
 				if (b >= HOPO_FLIP_FLAG_VAL) {
 					if (feedbackSafe) {
 						if (b == HOPO_FLIP_FLAG_VAL) {
-							cout << "E " << TRACK_EVENT_HOPO_FLIP << endl;
+							cout << "E " << TRACK_EVENT_HOPO_FLIP << "\r\n";
 						} else if (b == TAP_FLAG_VAL) {
-							cout << "E " << TRACK_EVENT_TAP << endl;
+							cout << "E " << TRACK_EVENT_TAP << "\r\n";
 						} else {
-							cerr << "Unhandled note flag " << b << endl;
+							cerr << "Unhandled note flag " << b << "\r\n";
 						}
 					} else {
 						cout << "N " << b << " ";
 						// Non-playble note flags should have a duration of zero
-						cout << 0 << endl;
+						cout << 0 << "\r\n";
 					}
 				} else {
 					cout << "N " << b << " ";
-					cout << note.duration << endl;
+					cout << note.duration << "\r\n";
 				}
 			}
 		}

@@ -46,7 +46,7 @@ void fix::fixMissingStartEvent(Chart& chart) {
 
 	// Add a start section
 	chart.events.insert(chart.events.begin(), NoteEvent(0, "\"section Start\""));
-	cerr << "Inserted start section at time 0" << endl;
+	cerr << "Inserted start section at time 0" << "\r\n";
 }
 
 void fix::fixMissingEndEvent(Chart& chart) {
@@ -75,7 +75,7 @@ void fix::fixMissingEndEvent(Chart& chart) {
 	max_time += endNote.duration;
 	max_time += 100; // 100 units of padding
 	chart.events.push_back(NoteEvent(max_time, "\"end\""));
-	cerr << "Inserted end event at time " << max_time << endl;
+	cerr << "Inserted end event at time " << max_time << "\r\n";
 }
 
 /* Note track fixes */
@@ -99,7 +99,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	/// const unsigned int max_ts = 99; // Limit in FeedBack
 
 	if (chart.offset < 1) {
-		cerr << "Cannot fix no_leading_measure: offset is less than 1" << endl;
+		cerr << "Cannot fix no_leading_measure: offset is less than 1" << "\r\n";
 		return;
 	}
 
@@ -141,7 +141,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 			insert_bpmT));
 
 	cerr << "Inserted leading measure of " << insert_numerator << "/4 at ";
-	cerr << (insert_bpmT / 1000) << " BPM" << endl;
+	cerr << (insert_bpmT / 1000) << " BPM" << "\r\n";
 }
 
 void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
@@ -159,7 +159,7 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 				uint32_t prev_note_end_time = prev_note.time + prev_note.duration;
 				int delta = note.time - prev_note_end_time;
 				if (delta < min_gap) {
-					cerr << "Sustain gap too small between " << prev_note << " and " << note << endl;
+					cerr << "Sustain gap too small between " << prev_note << " and " << note << "\r\n";
 					cerr << "Duration changed from " << prev_note.duration << " to ";
 
 					// Do fix
@@ -168,7 +168,7 @@ void fix::fixSustainGap(map<uint32_t, Note>& noteTrack) {
 						delta = prev_note.duration;
 					prev_note.duration -= delta;
 
-					cerr << prev_note.duration << " (-" << delta << ")" << endl;
+					cerr << prev_note.duration << " (-" << delta << ")" << "\r\n";
 				}
 			}
 		}
