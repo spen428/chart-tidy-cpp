@@ -25,61 +25,64 @@
 
 using namespace std;
 
-Event::Event(uint32_t time, string text):
-	time(time), text(text){}
+Event::Event(uint32_t time, string text) :
+time(time), text(text) {
+}
 
-Event::~Event(){}
+Event::~Event() {
+}
 
 SyncTrackEvent::SyncTrackEvent(uint32_t time, string type,
-		uint32_t value):
-	Event(time, ""), type(type), value(value){}
+							   uint32_t value) :
+Event(time, ""), type(type), value(value) {
+}
 
-SyncTrackEvent::~SyncTrackEvent(){}
+SyncTrackEvent::~SyncTrackEvent() {
+}
 
-NoteEvent::NoteEvent(uint32_t time, string text):
-	Event(time, text), value(0), duration(0){}
+NoteEvent::NoteEvent(uint32_t time, string text) :
+Event(time, text), value(0), duration(0) {
+}
 
-NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration):
-	Event(time, ""), value(value), duration(duration){}
+NoteEvent::NoteEvent(uint32_t time, uint32_t value, uint32_t duration) :
+Event(time, ""), value(value), duration(duration) {
+}
 
-NoteEvent::~NoteEvent(){}
+NoteEvent::~NoteEvent() {
+}
 
-bool NoteEvent::isEvent()
-{
+bool NoteEvent::isEvent() {
 	return text != "";
 }
 
-bool NoteEvent::isNote()
-{
+bool NoteEvent::isNote() {
 	return !isEvent();
 }
 
-bool NoteEvent::isFlag()
-{
+bool NoteEvent::isFlag() {
 	// HOPO flip flag is the first non-playable note value
 	return isNote() && value >= HOPO_FLIP_FLAG_VAL;
 }
 
-Note::Note(){}
-Note::~Note(){}
+Note::Note() {
+}
 
-bool Note::isTap()
-{
+Note::~Note() {
+}
+
+bool Note::isTap() {
 	return (value & (1 << TAP_FLAG_VAL));
 }
 
-bool Note::isForce()
-{
+bool Note::isForce() {
 	return (value & (1 << HOPO_FLIP_FLAG_VAL));
 }
 
-bool Note::equalsPlayable(const Note& note)
-{
+bool Note::equalsPlayable(const Note& note) {
 	return (value & note.value & 0x1F) == 1;
 }
 
-void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents)
-{
+void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultaneousNoteEvents) {
 	Note note;
 	note.time = simultaneousNoteEvents[0].time;
 	note.duration = simultaneousNoteEvents[0].duration;
@@ -88,7 +91,7 @@ void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultan
 	set<uint32_t> durationSet;
 
 	// Build note bits
-	for (NoteEvent evt: simultaneousNoteEvents) {
+	for (NoteEvent evt : simultaneousNoteEvents) {
 		if (!evt.isNote())
 			continue;
 		if (!evt.isFlag())
@@ -114,8 +117,7 @@ void Note::parse_notes(map<uint32_t, Note>& noteMap, vector<NoteEvent>& simultan
 	}
 }
 
-ostream& operator<<(ostream& os, const Note& n)
-{
+ostream& operator<<(ostream& os, const Note& n) {
 	return os << "[" << n.time << ", " << bitset<TOTAL_NOTE_FLAGS>(n.value) << ", " << n.duration << "]";
 	// return os << n.time << " = N " << bitset<TOTAL_NOTE_FLAGS>(n.value) << " " << n.duration;
 }

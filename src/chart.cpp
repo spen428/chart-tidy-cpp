@@ -37,16 +37,18 @@ using namespace std;
 void split_once(string& first, string& second, string str);
 bool is_note_section(const string& section);
 
-Chart::Chart(){}
-Chart::~Chart(){}
+Chart::Chart() {
+}
 
-bool Chart::read(char fpath[])
-{
+Chart::~Chart() {
+}
+
+bool Chart::read(char fpath[]) {
 	bool errors = false;
 	bool in_block = false;
 	ifstream infile(fpath);
 	string section = "";
-	unordered_map<string, map<uint32_t, vector<NoteEvent>>> mNoteEvents;
+	unordered_map<string, map<uint32_t, vector < NoteEvent>>> mNoteEvents;
 
 	for (string line; getline(infile, line);) {
 		boost::trim(line);
@@ -114,8 +116,7 @@ bool Chart::read(char fpath[])
  * whitespace from them. If `delim` is not found in `str`, `first` will equal
  * `str` after trimming and `second` will equal "".
  */
-void split_once(string& first, string& second, const string& str, char delim)
-{
+void split_once(string& first, string& second, const string& str, char delim) {
 	const auto idx = str.find_first_of(delim);
 	if (string::npos != idx) {
 		first = str.substr(0, idx);
@@ -128,8 +129,7 @@ void split_once(string& first, string& second, const string& str, char delim)
 	boost::trim(second);
 }
 
-bool Chart::parse_song_line(const string& line)
-{
+bool Chart::parse_song_line(const string& line) {
 	string key;
 	string value;
 	split_once(key, value, line, '=');
@@ -164,8 +164,7 @@ bool Chart::parse_song_line(const string& line)
 	return true;
 }
 
-bool Chart::parse_sync_track_line(const string& line)
-{
+bool Chart::parse_sync_track_line(const string& line) {
 	string key;
 	string value;
 
@@ -180,8 +179,7 @@ bool Chart::parse_sync_track_line(const string& line)
 	return true;
 }
 
-bool Chart::parse_events_line(const string& line)
-{
+bool Chart::parse_events_line(const string& line) {
 	string key;
 	string value;
 
@@ -202,9 +200,8 @@ bool Chart::parse_events_line(const string& line)
  * Parse a line into a NoteEvent object and insert it into the vector
  * `noteEvents`.
  */
-bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>& noteEvents,
-		const string& line)
-{
+bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>&noteEvents,
+									const string& line) {
 	string key;
 	string value;
 
@@ -244,17 +241,16 @@ bool Chart::parse_note_section_line(map<uint32_t, vector<NoteEvent>>& noteEvents
 	return false;
 }
 
-bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents)
-{
+bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEvent>>>& noteEvents) {
 	bool errors = false;
 	// Iterate over map keys, which are note section names
-	for (auto e0: noteEvents) {
+	for (auto e0 : noteEvents) {
 		// Get the note map for this section
 		string section = e0.first;
 		map<uint32_t, Note>& m = noteSections[section];
 
 		// Iterate over submap keys, which are values of `time`
-		for (auto e1: noteEvents[section]) {
+		for (auto e1 : noteEvents[section]) {
 			// Get the NoteEvent vector for this value of `time`
 			uint32_t time = e1.first;
 			vector<NoteEvent> events = noteEvents[section][time];
@@ -265,33 +261,32 @@ bool Chart::parse_note_events(unordered_map<string, map<uint32_t, vector<NoteEve
 	return !errors;
 }
 
-bool is_note_section(const string& section)
-{
+bool is_note_section(const string& section) {
 	return (section == "EasySingle"
-	        || section == "MediumSingle"
-	        || section == "HardSingle"
-	        || section == "ExpertSingle"
-	        || section == "HardDoubleGuitar"
-	        || section == "HardDoubleBass"
-	        || section == "HardEnhancedGuitar"
-	        || section == "HardCoopLead"
-	        || section == "HardCoopBass"
-	        || section == "Hard10KeyGuitar"
-	        || section == "HardDrums"
-	        || section == "HardDoubleDrums"
-	        || section == "HardVocals"
-	        || section == "HardKeyboard");
+			|| section == "MediumSingle"
+			|| section == "HardSingle"
+			|| section == "ExpertSingle"
+			|| section == "HardDoubleGuitar"
+			|| section == "HardDoubleBass"
+			|| section == "HardEnhancedGuitar"
+			|| section == "HardCoopLead"
+			|| section == "HardCoopBass"
+			|| section == "Hard10KeyGuitar"
+			|| section == "HardDrums"
+			|| section == "HardDoubleDrums"
+			|| section == "HardVocals"
+			|| section == "HardKeyboard");
 }
 
 #define DEFAULT_FEEDBACK_SAFE false
 #define BEGIN_SECTION(X) cout << "[" << X << "]" << endl << "{" << endl
 #define END_SECTION() cout << "}" << endl
-void Chart::print()
-{
+
+void Chart::print() {
 	print(DEFAULT_FEEDBACK_SAFE);
 }
-void Chart::print(bool feedback_safe)
-{
+
+void Chart::print(bool feedback_safe) {
 	BEGIN_SECTION(SONG_SECTION);
 	cout << '\t' << "Name" << " = " << name << endl;
 	cout << '\t' << "Artist" << " = " << artist << endl;
@@ -309,26 +304,26 @@ void Chart::print(bool feedback_safe)
 	END_SECTION();
 
 	BEGIN_SECTION(SYNC_TRACK_SECTION);
-	for (auto const& evt: syncTrack) {
+	for (auto const& evt : syncTrack) {
 		cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << endl;
 	}
 	END_SECTION();
 
 	BEGIN_SECTION(EVENTS_SECTION);
-	for (auto const& evt: events) {
+	for (auto const& evt : events) {
 		cout << '\t' << evt.time << " = E " << evt.text << endl;
 	}
 	END_SECTION();
 
 	// Iterate over each note section
-	for (auto const& e0: noteSections) {
+	for (auto const& e0 : noteSections) {
 		string section = e0.first;
 		map<uint32_t, Note>& notes = noteSections[section];
 
 		BEGIN_SECTION(section);
 
 		// Iterate over each note stored in this note section's map
-		for (auto const& e1: notes) {
+		for (auto const& e1 : notes) {
 			uint32_t time = e1.first;
 			Note note = notes[time];
 
@@ -345,7 +340,7 @@ void Chart::print(bool feedback_safe)
 							cout << "E " << TRACK_EVENT_TAP << endl;
 						} else {
 							cerr << "Unhandled note flag " << b << endl;
-						}	
+						}
 					} else {
 						cout << "N " << b << " ";
 						// Non-playble note flags should have a duration of zero

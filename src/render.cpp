@@ -22,11 +22,10 @@
 
 using namespace std;
 
-void draw(string (&lines)[5], char c);
-void draw(string (&lines)[5], char (&c)[5]);
+void draw(string(&lines)[5], char c);
+void draw(string(&lines)[5], char (&c)[5]);
 
-void Renderer::chart_to_text(const Chart& chart)
-{
+void Renderer::chart_to_text(const Chart& chart) {
 	const unsigned int measures_per_line = 1;
 	const unsigned int unit_time = 48;
 
@@ -35,15 +34,15 @@ void Renderer::chart_to_text(const Chart& chart)
 	cout << "Charter:\t" << chart.charter << endl;
 	cout << endl;
 
-	for (auto const& e0: chart.noteSections) {
+	for (auto const& e0 : chart.noteSections) {
 		string section = e0.first;
 		map<uint32_t, Note> notes = chart.noteSections.at(section);
 		cout << section << endl << endl;
 
 		unsigned int ctime = 0; // Current time
-		string lines[5] = { "G", "R", "Y", "B", "O" };
+		string lines[5] = {"G", "R", "Y", "B", "O"};
 		draw(lines, '|');
-		for (auto const& e1: notes) {
+		for (auto const& e1 : notes) {
 			uint32_t time = e1.first;
 			Note note = notes[time];
 
@@ -54,7 +53,7 @@ void Renderer::chart_to_text(const Chart& chart)
 				draw(lines, '-');
 			}
 			// Draw notes
-			char c[5] = { '-', '-', '-', '-', '-' };
+			char c[5] = {'-', '-', '-', '-', '-'};
 			for (unsigned int b = 0; b < 5; b++)
 				if ((note.value >> b) & 1)
 					c[b] = 'x';
@@ -67,19 +66,17 @@ void Renderer::chart_to_text(const Chart& chart)
 			draw(lines, c);
 		}
 		draw(lines, '|');
-		for (auto s: lines)
+		for (auto s : lines)
 			cout << s << endl;
 	}
 }
 
-void draw(string (&lines)[5], char c)
-{
-	char ca[5] = {c,c,c,c,c};
+void draw(string(&lines)[5], char c) {
+	char ca[5] = {c, c, c, c, c};
 	draw(lines, ca);
 }
 
-void draw(string (&lines)[5], char (&c)[5])
-{
+void draw(string(&lines)[5], char (&c)[5]) {
 	for (int i = 0; i < 5; i++)
 		*(lines + i) += *(c + i);
 
@@ -89,7 +86,7 @@ void draw(string (&lines)[5], char (&c)[5])
 		draw(lines, '|');
 	} else if (lines[0].length() == 96 + 3) {
 		draw(lines, '|');
-		for (auto s: lines)
+		for (auto s : lines)
 			cout << s << endl;
 		cout << endl;
 		for (int i = 0; i < 5; i++)
