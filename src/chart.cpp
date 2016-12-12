@@ -304,13 +304,13 @@ void Chart::print(bool feedbackSafe) {
 
 	std::cout << "[" << SYNC_TRACK_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	for (const SyncTrackEvent& evt : syncTrack) {
-		std::cout << '\t' << evt.time << " = " << evt.type << " " << evt.value << "\r\n";
+		std::cout << '\t' << evt.toEventString() << "\r\n";
 	}
 	std::cout << "}" << "\r\n";
 
 	std::cout << "[" << EVENTS_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	for (const Event& evt : events) {
-		std::cout << '\t' << evt.time << " = E " << evt.text << "\r\n";
+		std::cout << '\t' << evt.toEventString() << "\r\n";
 	}
 	std::cout << "}" << "\r\n";
 
