@@ -118,18 +118,26 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	// Shift all notes forward
 	for (auto e0 : chart.noteTrackNotes) {
 		std::string section = e0.first;
-		std::map<uint32_t, Note>& noteMap = chart.noteTrackNotes[section];
-		// Build new vector
+
+		// Fix note track events, which can be mutated in place
+		for (NoteTrackEvent& evt : chart.noteTrackEvents[section]) {
+			evt.time += offset_game_time;
+		}
+		
+		// Build new vector for note tracks, these need rebuilding because
+		// the key mapped to each element is the time, which is what we are
+		// mutating.
 		std::vector<Note> fixedNotes;
-		for (auto e1 : noteMap) {
-			Note note = noteMap[e1.first];
+		for (auto e1 : chart.noteTrackNotes[section]) {
+			Note note = chart.noteTrackNotes[section][e1.first];
 			note.time += offset_game_time;
 			fixedNotes.push_back(note);
 		}
-		// Clear map and rebuild with new vector
-		noteMap.clear();
+
+		// Clear note map and rebuild with new vectors
+		chart.noteTrackNotes[section].clear();
 		for (Note note : fixedNotes) {
-			noteMap[note.time] = note;
+			chart.noteTrackNotes[section][note.time] = note;
 		}
 	}
 
@@ -177,4 +185,37 @@ void fix::fixSustainGap(std::map<uint32_t, Note>& noteTrack) {
 
 void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrackEvent> simultaneousNoteEvents) {
 	// TODO
+}
+
+void fix::unfixFeedbackSafe(Chart& chart) {
+	// TODO
+}
+
+void fix::fixFeedbackSafe(Chart& chart) {
+	// TODO
+}
+
+/**
+ * Insert x-measure-long star power phrases at y-measure-long intervals.
+ */
+void fix::fixMissingStarPower(Chart& chart) {
+	// For each note section
+	for (auto it : chart.noteTrackNotes) {
+		const std::string section = it.first;
+
+		// Ensure that the note event track contains no SP phrases
+		for (NoteTrackEvent& evt : chart.noteTrackEvents[section]) {
+			if (evt.isStarPower())
+				return; // Found SP phrase, stop operation
+		}
+
+		// Generate SP phrases
+		const unsigned int phraseMeasures = 2; // How long the SP phrases should be, in measures
+		const unsigned int intervalMeasures = 6; // Space between SP phrases, in measures
+		unsigned int currentMeasure = 0;
+		for (auto it : chart.noteTrackNotes[section]) {
+			uint32_t time = it.first;
+			// TODO
+		}
+	}
 }

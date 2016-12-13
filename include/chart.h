@@ -20,6 +20,7 @@
 
 #include <map>
 #include <unordered_map>
+#include <set>
 #include <vector>
 
 #include "event.h"
@@ -30,7 +31,6 @@ public:
     ~Chart();
     bool read(char fpath[]);
     void print();
-    void print(bool feedbackSafe);
 
     // [Song]
     std::string name;
@@ -53,7 +53,7 @@ public:
     /** Playable notes and note flags, i.e. anything starting with "N" in a note track */
     std::unordered_map<std::string, std::map<uint32_t, Note>> noteTrackNotes;
     /** Everything else that appears in a note track: star power and track events */
-    std::unordered_map<std::string, std::map<uint32_t, std::vector<NoteTrackEvent>>> noteTrackEvents;
+    std::unordered_map<std::string, std::vector<NoteTrackEvent>> noteTrackEvents;
 private:
     bool parseSongLine(const std::string& line);
     bool parseSyncTrackLine(const std::string& line);

@@ -36,6 +36,15 @@ namespace fix {
     /* Note track fixes */
 
     /**
+     * Replace event markers with tap notes / force notes.
+     */
+    void unfixFeedbackSafe(Chart& chart);
+    /**
+     * Replaces unsupported NoteTrackEvents with plain events so a chart can be
+     * edited using FeedBack without crashes.
+     */
+    void fixFeedbackSafe(Chart& chart);
+    /**
      * Fix the case where the note track(s) have no "leading measure", that is at least one blank measure
      * before the first note. Without this, it is possible for HOPO calculations to be incorrect at the
      * start of a song.
@@ -43,6 +52,9 @@ namespace fix {
     void fixNoLeadingMeasure(Chart& chart);
     void fixSustainGap(std::map<uint32_t, Note>& noteTrack);
     void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrackEvent> simultaneousNoteEvents);
+    /**
+     * Automatically inserts star power phrases into the chart.
+     */
     void fixMissingStarPower(Chart& chart);
 
 }

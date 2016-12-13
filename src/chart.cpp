@@ -208,7 +208,7 @@ bool Chart::parseNoteSectionLine(const std::string& section, const std::string& 
 	// Get time and vector associated with it
 	splitOnce(key, value, line, '=');
 	int time = stoi(key);
-	std::vector<NoteTrackEvent>& v = noteTrackEvents[section][time];
+	std::vector<NoteTrackEvent>& v = noteTrackEvents[section];
 
 	// Parse note
 	splitOnce(key, value, value, ' ');
@@ -250,47 +250,41 @@ bool Chart::extractNotesFromNoteTrackEvents() {
 		std::string section = it.first;
 		std::map<uint32_t, Note>& noteMap = noteTrackNotes[section];
 
-		// Iterate over submap keys, which are values of `time`
-		for (auto e1 : noteTrackEvents[section]) {
-			// Get the NoteEvent vector for this value of `time`
-			uint32_t time = e1.first;
-			std::vector<NoteTrackEvent>& events = noteTrackEvents[section][time];
-			// Parse note events into notes, inserting them into map `noteMap`
-			Note note;
-			note.time = events[0].time;
-			note.duration = events[0].duration;
-			note.value = 0;
+		// Parse note events into notes, inserting them into map `noteMap`
+		Note note;
+		note.time = noteTrackEvents[section][0].time;
+		note.duration = noteTrackEvents[section][0].duration;
+		note.value = 0;
 
-			std::set<uint32_t> durationSet;
+		std::set<uint32_t> durationSet;
 
-			// Build note bits
-			for (NoteTrackEvent evt : events) {
-				if (!evt.isNote())
-					continue;
-				if (!evt.isFlag())
-					durationSet.insert(evt.time);
-				note.value |= (1 << evt.value);
-			}
-
-			// Assert note durations are equal
-			if (!durationSet.size() == 1) {
-				// Durations are not equal, must be an extended sustain. Let's fix it
-				std::cerr << "Unequal note durations detected at time " << note.time << "\r\n";
-				// TODO
-				// vector<Note> fixedNotes;
-				// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);
-				// // Add notes to map
-				// for (Note n: fixedNotes) {
-				// 	noteMap[n.time] = n;
-				// }
-				noteMap[note.time] = note;
-			} else {
-				// Add note to map
-				noteMap[note.time] = note;
-			}
-			// Remove parsed note from events vector
-			// TODO
+		// Build note bits
+		for (NoteTrackEvent evt : noteTrackEvents[section]) {
+			if (!evt.isNote())
+				continue;
+			if (!evt.isFlag())
+				durationSet.insert(evt.time);
+			note.value |= (1 << evt.value);
 		}
+
+		// Assert note durations are equal
+		if (!durationSet.size() == 1) {
+			// Durations are not equal, must be an extended sustain. Let's fix it
+			std::cerr << "Unequal note durations detected at time " << note.time << "\r\n";
+			// TODO
+			// vector<Note> fixedNotes;
+			// Fix::fix_unequal_note_durations(fixedNotes, simultaneousNoteEvents);
+			// // Add notes to map
+			// for (Note n: fixedNotes) {
+			// 	noteMap[n.time] = n;
+			// }
+			noteMap[note.time] = note;
+		} else {
+			// Add note to map
+			noteMap[note.time] = note;
+		}
+		// Remove parsed note from events vector
+		// TODO
 	}
 	return !errors;
 }
@@ -314,13 +308,7 @@ bool isNoteSection(const std::string& section) {
 			|| boost::ends_with(section, "Keyboard")));
 }
 
-#define DEFAULT_FEEDBACK_SAFE false
-
 void Chart::print() {
-	print(DEFAULT_FEEDBACK_SAFE);
-}
-
-void Chart::print(bool feedbackSafe) {
 	std::cout << "[" << SONG_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	std::cout << '\t' << "Name" << " = " << name << "\r\n";
 	std::cout << '\t' << "Artist" << " = " << artist << "\r\n";
@@ -350,16 +338,15 @@ void Chart::print(bool feedbackSafe) {
 
 	// Iterate over each note section
 	std::vector<NoteTrackEvent> nte;
-	for (auto const& e0 : noteTrackNotes) {
-		std::string section = e0.first;
+	for (const auto& itr0 : noteTrackNotes) {
+		std::string section = itr0.first;
 		std::map<uint32_t, Note>& notes = noteTrackNotes[section];
 
 		std::cout << "[" << section << "]" << "\r\n" << "{" << "\r\n";
 
 		// Iterate over each note stored in this note section's map
-		for (auto const& e1 : notes) {
-			uint32_t time = e1.first;
-			Note note = notes[time];
+		for (auto const& itr1 : notes) {
+			Note note = notes[itr1.first];
 
 			nte.clear();
 			note.toNoteTrackEvents(nte);
@@ -368,13 +355,10 @@ void Chart::print(bool feedbackSafe) {
 			}
 		}
 		// Iterate over NoteEvents (excluding actual notes)
-		for (const auto& e1 : noteTrackEvents[section]) {
-			std::vector<NoteTrackEvent>& vec = noteTrackEvents[section][e1.first];
-			for (const NoteTrackEvent& evt : vec) {
-				if (evt.isNote())
-					continue; // Ignore notes, they were done above
-				std::cout << '\t' << evt.toEventString() << "\r\n";
-			}
+		for (const NoteTrackEvent& evt : noteTrackEvents[section]) {
+			if (evt.isNote())
+				continue; // Ignore notes, they were done above
+			std::cout << '\t' << evt.toEventString() << "\r\n";
 		}
 
 		std::cout << "}" << "\r\n";
