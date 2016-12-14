@@ -166,7 +166,10 @@ void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) const {
 	for (unsigned int b = 0; b < 32; b++) {
 		if (!((value >> b) & 1))
 			continue;
-		vec.push_back(NoteTrackEvent(time, b, duration));
+		if (b >= PLAYABLE_NOTE_TOTAL) // Set duration to 0 for note flags
+			vec.push_back(NoteTrackEvent(time, b, 0));
+		else
+			vec.push_back(NoteTrackEvent(time, b, duration));
 	}
 }
 
