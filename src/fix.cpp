@@ -187,11 +187,11 @@ void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrac
 	// TODO
 }
 
-void fix::unfixFeedbackSafe(Chart& chart) {
+void fix::setNoteFlags(Chart& chart) {
 	// TODO
 }
 
-void fix::fixFeedbackSafe(Chart& chart) {
+void fix::unsetNoteFlags(Chart& chart) {
 	// TODO
 }
 

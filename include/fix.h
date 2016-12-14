@@ -38,12 +38,11 @@ namespace fix {
     /**
      * Replace event markers with tap notes / force notes.
      */
-    void unfixFeedbackSafe(Chart& chart);
+    void setNoteFlags(Chart& chart);
     /**
-     * Replaces unsupported NoteTrackEvents with plain events so a chart can be
-     * edited using FeedBack without crashes.
+     * Replace tap notes / force notes with event markers.
      */
-    void fixFeedbackSafe(Chart& chart);
+    void unsetNoteFlags(Chart& chart);
     /**
      * Fix the case where the note track(s) have no "leading measure", that is at least one blank measure
      * before the first note. Without this, it is possible for HOPO calculations to be incorrect at the
