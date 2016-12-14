@@ -105,6 +105,22 @@ bool NoteTrackEvent::isStarPower() const {
 	return type == NOTE_TRACK_EVENT_TYPE_STAR_POWER;
 }
 
+bool operator<(const NoteTrackEvent& nte0, const NoteTrackEvent& nte1) {
+	if (nte0.time < nte1.time)
+		return true;
+	if (nte0.time == nte1.time) {
+		if (nte0.type < nte1.type)
+			return true;
+		if (nte0.type == nte1.type) {
+			if (nte0.text < nte1.text)
+				return true;
+			if (nte0.text == nte1.text)
+				return (nte0.value < nte1.value);
+		}
+	}
+	return false;
+}
+
 Note::Note() {
 }
 
@@ -123,7 +139,7 @@ bool Note::equalsPlayable(const Note& note) const {
 	return (value & note.value & 0x1F) == 0x1F;
 }
 
-void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) {
+void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) const {
 	// Write each of the active note flags out
 	for (unsigned int b = 0; b < 32; b++) {
 		if (!((value >> b) & 1))

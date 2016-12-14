@@ -60,4 +60,9 @@ private:
     bool parseEventsLine(const std::string& line);
     bool parseNoteSectionLine(const std::string& section, const std::string& line);
     bool extractNotesFromNoteTrackEvents();
+    /**
+     * Merge std::vector<NoteTrackEvent> and std::map<uint32_t, Note> into
+     * a single std::vector<NoteTrackEvent>, converting all Note objects.
+     */
+    void mergeEvents(std::vector<NoteTrackEvent>& out, const std::vector<NoteTrackEvent>& nte, const std::map<uint32_t, Note>& notes);
 };

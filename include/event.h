@@ -97,6 +97,11 @@ public:
     bool isStarPower() const;
 
     /**
+     * Override the < operator to enable std::sort() to work
+     */
+    friend bool operator< (const NoteTrackEvent& nte0, const NoteTrackEvent& nte1);
+    
+    /**
      * Note value as decimal
      */
     uint32_t value;
@@ -117,7 +122,7 @@ public:
     /**
      * Convert this `Note` into a set of `NoteTrackEvent`s and add it to the given vector.
      */
-    void toNoteTrackEvents(std::vector<NoteTrackEvent>& vector);
+    void toNoteTrackEvents(std::vector<NoteTrackEvent>& vector) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Note& n);
 

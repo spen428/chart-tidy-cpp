@@ -323,31 +323,31 @@ void Chart::print() {
 	std::cout << "}" << "\r\n";
 
 	// Iterate over each note section
-	std::vector<NoteTrackEvent> nte;
+	std::vector<NoteTrackEvent> merged;
 	for (const auto& itr0 : noteTrackNotes) {
 		std::string section = itr0.first;
-		std::map<uint32_t, Note>& notes = noteTrackNotes[section];
+		mergeEvents(merged, noteTrackEvents[section], noteTrackNotes[section]);
 
-		std::cout << "[" << section << "]" << "\r\n" << "{" << "\r\n";
-
-		// Iterate over each note stored in this note section's map
-		for (auto const& itr1 : notes) {
-			Note note = notes[itr1.first];
-
-			nte.clear();
-			note.toNoteTrackEvents(nte);
-			for (NoteTrackEvent& evt : nte) {
-				std::cout << '\t' << evt.toEventString() << "\r\n";
-			}
+		std::cout << "[" << section << "]" << "\r\n";
+		std::sort(merged.begin(), merged.end());
+		for (const NoteTrackEvent& nte : merged) {
+			std::cout << nte.toEventString() << "\r\n";
 		}
-		// Iterate over NoteEvents (excluding actual notes)
-		for (const NoteTrackEvent& evt : noteTrackEvents[section]) {
-			if (evt.isNote())
-				continue; // Ignore notes, they were done above
-			std::cout << '\t' << evt.toEventString() << "\r\n";
-		}
-
 		std::cout << "}" << "\r\n";
+		
+		merged.clear();
+	}
+}
+
+void Chart::mergeEvents(std::vector<NoteTrackEvent>& out, const std::vector<NoteTrackEvent>& nte,
+		const std::map<uint32_t, Note>& notes) {
+	for (const NoteTrackEvent& evt : nte) {
+		out.push_back(evt);
+	}
+	for (auto const& itr : notes) {
+		uint32_t time = itr.first;
+		const Note& note = notes.at(time);
+		note.toNoteTrackEvents(out);
 	}
 }
 
