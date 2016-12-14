@@ -28,16 +28,12 @@
 #include "debug.h"
 #include "event.h"
 
-const std::string DEFAULT_NOTE_TRACK_EVENT_TAP = "t";
-const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
-
 #define SONG_SECTION "Song"
 #define SYNC_TRACK_SECTION "SyncTrack"
 #define EVENTS_SECTION "Events"
 
 void splitOnce(std::string& first, std::string& second, std::string str);
 bool isNoteSection(const std::string& section);
-std::string toFeedbackSafeString(const NoteTrackEvent& nte);
 
 Chart::Chart() {
 }
@@ -212,23 +208,7 @@ bool Chart::parseNoteSectionLine(const std::string& section, const std::string& 
 	// Parse note
 	splitOnce(key, value, value, ' ');
 	if (key == NOTE_TRACK_EVENT_TYPE_EVENT) { // "E" "some event"
-		if (value == DEFAULT_NOTE_TRACK_EVENT_TAP) {
-			// Tap event
-			noteTrackEvents[section].push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_TAP, 0));
-			// TODO: Move event replacements to fix:: ?
-			std::cerr << "Replacing track event E " << DEFAULT_NOTE_TRACK_EVENT_TAP;
-			std::cerr << " at time " << time << " with tap flag" << "\r\n";
-		} else if (value == DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP) {
-			// HOPO flip event
-			noteTrackEvents[section].push_back(NoteTrackEvent(time, NOTE_FLAG_VAL_HOPO_FLIP, 0));
-			std::cerr << "Replacing track event E " << DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP;
-			std::cerr << " at time " << time << " with HOPO flip flag" << "\r\n";
-		} else {
-			// Other track event
-			// noteTrackEvents[section].push_back(NoteEvent(time, value));
-			std::cerr << "Removing unknown track event E " << value;
-			std::cerr << " at time " << time << "\r\n";
-		}
+		noteTrackEvents[section].push_back(NoteTrackEvent(time, value));
 		return true;
 	} else if (key == NOTE_TRACK_EVENT_TYPE_NOTE || key == NOTE_TRACK_EVENT_TYPE_STAR_POWER) { // "N" "5 0"
 		std::string type = key;
@@ -351,20 +331,4 @@ void Chart::mergeEvents(std::vector<NoteTrackEvent>& out, const std::vector<Note
 		const Note& note = notes.at(time);
 		note.toNoteTrackEvents(out);
 	}
-}
-
-std::string toFeedbackSafeString(const NoteTrackEvent& nte) {
-	if (!nte.isFlag())
-		return nte.toEventString();
-	std::stringstream ss;
-	ss << nte.time << " = E ";
-	if (nte.value == NOTE_FLAG_VAL_HOPO_FLIP) {
-		ss << DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP;
-	} else if (nte.value == NOTE_FLAG_VAL_TAP) {
-		ss << DEFAULT_NOTE_TRACK_EVENT_TAP;
-	} else {
-		std::cerr << "Unhandled NTE value for toFeedbackSafeString() conversion " << nte.value << "\r\n";
-		ss << nte.value; // Just keep it as it is
-	}
-	return ss.str();
 }

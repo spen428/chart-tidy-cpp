@@ -22,6 +22,9 @@
 #include "FeedBack.h"
 #include "fix.h"
 
+const std::string DEFAULT_NOTE_TRACK_EVENT_TAP = "t";
+const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
+
 void fix::fixAll(Chart& chart) {
 	// TODO
 	fixMissingStartEvent(chart);
@@ -123,7 +126,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 		for (NoteTrackEvent& evt : chart.noteTrackEvents[section]) {
 			evt.time += offset_game_time;
 		}
-		
+
 		// Build new vector for note tracks, these need rebuilding because
 		// the key mapped to each element is the time, which is what we are
 		// mutating.
@@ -188,11 +191,67 @@ void fix::fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrac
 }
 
 void fix::setNoteFlags(Chart& chart) {
-	// TODO
+	// For each note section
+	for (auto it : chart.noteTrackNotes) {
+		const std::string section = it.first;
+		std::vector<NoteTrackEvent> filteredNte;
+		for (NoteTrackEvent& evt : chart.noteTrackEvents[section]) {
+			// Ignore non-events
+			if (!evt.isEvent()) {
+				filteredNte.push_back(evt);
+				continue;
+			}
+
+			// If a note doesn't exist at this time, skip - cannot set flags for a non-existant note
+			if (chart.noteTrackNotes[section].find(evt.time) == chart.noteTrackNotes[section].end()) {
+				std::cerr << "No note for note flag event \"" << evt.toEventString() << "\"\r\n";
+				continue;
+			}
+			// Convert and add to note track
+			if (evt.text == DEFAULT_NOTE_TRACK_EVENT_TAP) {
+				// Tap event
+				chart.noteTrackNotes[section][evt.time].value |= (1 << NOTE_FLAG_VAL_TAP);
+				std::cerr << "Parsed track event \"" << evt.toEventString() << "\"";
+				std::cerr << " as tap flag" << "\r\n";
+			} else if (evt.text == DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP) {
+				// HOPO flip event
+				chart.noteTrackNotes[section][evt.time].value |= (1 << NOTE_FLAG_VAL_HOPO_FLIP);
+				std::cerr << "Parsed track event \"" << evt.toEventString() << "\"";
+				std::cerr << " as HOPO flip flag" << "\r\n";
+			} else {
+				// Not a flag event
+				std::cerr << "not a flag event: " << evt.text << "\r\n";
+				filteredNte.push_back(evt);
+			}
+		}
+		chart.noteTrackEvents[section] = filteredNte;
+	}
 }
 
 void fix::unsetNoteFlags(Chart& chart) {
-	// TODO
+	// For each note section
+	for (auto it : chart.noteTrackNotes) {
+		const std::string section = it.first;
+		std::map<uint32_t, Note>& notes = chart.noteTrackNotes[section];
+		// For each note
+		for (auto const& itr : notes) {
+			uint32_t time = itr.first;
+			Note& note = notes.at(time);
+			// Unset flag and add an equivilant track event
+			if (note.isTap()) {
+				note.value ^= (1 << NOTE_FLAG_VAL_TAP);
+				NoteTrackEvent evt = NoteTrackEvent(note.time, DEFAULT_NOTE_TRACK_EVENT_TAP);
+				chart.noteTrackEvents[section].push_back(evt);
+				std::cerr << "Unset tap flag and added track event \"" << evt.toEventString() << "\"\r\n";
+			}
+			if (note.isForce()) {
+				note.value ^= (1 << NOTE_FLAG_VAL_HOPO_FLIP);
+				NoteTrackEvent evt = NoteTrackEvent(note.time, DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP);
+				chart.noteTrackEvents[section].push_back(evt);
+				std::cerr << "Unset tap flag and added track event \"" << evt.toEventString() << "\"\r\n";
+			}
+		}
+	}
 }
 
 /**

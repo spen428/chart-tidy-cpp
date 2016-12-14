@@ -36,9 +36,14 @@ int main(int argc, char* argv[]) {
 
 	Chart chart;
 	chart.read(argv[1]);
+
 	fix::fixAll(chart);
-	if (feedbackSafe)
+	if (feedbackSafe) {
 		fix::unsetNoteFlags(chart);
+	} else {
+		fix::setNoteFlags(chart);
+	}
+
 	chart.print();
 	return 0;
 }
