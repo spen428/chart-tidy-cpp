@@ -31,24 +31,30 @@ const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
 int main(int argc, char* argv[]) {
 	cmdline::parser parser;
 	parser.add("help", '?', "Print command line help");
-	parser.add<std::string>("tap-event", 't', "The track event text that marks a tap note",
-			false, DEFAULT_NOTE_TRACK_EVENT_TAP);
+	parser.add<std::string>("tap-event", 't', "The track event text that marks a tap note."
+			" Default:" + DEFAULT_NOTE_TRACK_EVENT_TAP, false, DEFAULT_NOTE_TRACK_EVENT_TAP);
 	parser.add<std::string>("hopo-event", 'h', "The track event text that marks a HOPO flip"
-			" (force note)", false, DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP);
-	parser.add("feedback-safe", 'b', "Ensure that note flags remain as (or are converted to)"
-			" track events to ensure that the chart can still be safely edited in FeedBack");
-	parser.add("fix-all", 'a', "Automatically apply all chart error fixes");
+			" (force note). Default: " + DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP, false,
+			DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP);
 	parser.add<unsigned int>("sustain-gap", 'g', "The minimum gap to enforce after the end"
 			" of a sustain note. Default: 24 (1/32)", false, DURATION_1_32);
 	parser.add("stdio", 's', "Read in from stdin and output to stdout");
+	// Fixes
+	parser.add("feedback-safe", 'b', "Ensure that note flags remain as (or are converted to)"
+			" track events to ensure that the chart can still be safely edited in FeedBack");
+	parser.add("fix-start", '\0', "r");
+	parser.add("fix-end", '\0', "e");
+	parser.add("fix-leading-measure", 'l', "");
+	parser.add("fix-starpower", 'p', "");
+	parser.add("fix-sustain", 'u', "");
 
 	parser.parse_check(argc, argv);
-	
+
 	if (parser.exist("help")) {
 		parser.usage();
 		return 0;
 	}
-	
+
 	std::vector<std::string> input_files;
 	if (parser.rest().size() == 0) { // Positional arguments
 		if (!parser.exist("stdio")) {
@@ -71,8 +77,32 @@ int main(int argc, char* argv[]) {
 		chart.min_sustain_gap = parser.get<unsigned int>("sustain-gap");
 		chart.read(input_file);
 
-		// Apply fixes
-		if (parser.exist("fix-all"))
+		// Apply fixes, fix all if no specific fixes are set
+		bool fixall = true;
+		if (parser.exist("fix-start")) {
+			fix::fixMissingStarPower(chart);
+			fixall = false;
+		}
+		if (parser.exist("fix-end")) {
+			fix::fixMissingEndEvent(chart);
+			fixall = false;
+		}
+		if (parser.exist("fix-leading-measure")) {
+			fix::fixNoLeadingMeasure(chart);
+			fixall = false;
+		}
+		if (parser.exist("fix-starpower")) {
+			fix::fixMissingStarPower(chart);
+			fixall = false;
+		}
+		if (parser.exist("fix-sustain")) {
+			for (auto it : chart.noteTrackNotes) {
+				std::string section = it.first;
+				fix::fixSustainGap(chart.noteTrackNotes[section], chart.min_sustain_gap);
+			}
+			fixall = false;
+		}
+		if (fixall)
 			fix::fixAll(chart);
 		if (parser.exist("feedback-safe"))
 			fix::unsetNoteFlags(chart);
