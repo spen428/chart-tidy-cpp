@@ -30,24 +30,28 @@ const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
 
 int main(int argc, char* argv[]) {
 	cmdline::parser parser;
+	parser.footer("filename ...");
 	parser.add("help", '?', "Print command line help");
 	parser.add<std::string>("tap-event", 't', "The track event text that marks a tap note."
-			" Default:" + DEFAULT_NOTE_TRACK_EVENT_TAP, false, DEFAULT_NOTE_TRACK_EVENT_TAP);
+			" default: \"" + DEFAULT_NOTE_TRACK_EVENT_TAP + "\"", false, DEFAULT_NOTE_TRACK_EVENT_TAP);
 	parser.add<std::string>("hopo-event", 'h', "The track event text that marks a HOPO flip"
-			" (force note). Default: " + DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP, false,
+			" (force note). default: \"" + DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP + "\"", false,
 			DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP);
 	parser.add<unsigned int>("sustain-gap", 'g', "The minimum gap to enforce after the end"
-			" of a sustain note. Default: 24 (1/32)", false, DURATION_1_32);
+			" of a sustain note. default: 24 (1/32)", false, DURATION_1_32);
 	parser.add("stdio", 's', "Read in from stdin and output to stdout");
+	parser.add<std::string>("output-prefix", 'x', "String to prefix to output file name. default:"
+			" \"fixed_\"", false, "fixed_");
 	// Fixes
 	parser.add("feedback-safe", 'b', "Ensure that note flags remain as (or are converted to)"
 			" track events to ensure that the chart can still be safely edited in FeedBack");
-	parser.add("fix-start", '\0', "r");
-	parser.add("fix-end", '\0', "e");
+	parser.add("fix-start", 'r', "");
+	parser.add("fix-end", 'e', "");
 	parser.add("fix-leading-measure", 'l', "");
 	parser.add("fix-starpower", 'p', "");
 	parser.add("fix-sustain", 'u', "");
 
+	// Execute parser
 	parser.parse_check(argc, argv);
 
 	if (parser.exist("help")) {
@@ -55,8 +59,9 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	// Enumerate input files
 	std::vector<std::string> input_files;
-	if (parser.rest().size() == 0) { // Positional arguments
+	if (parser.rest().size() == 0) { // Positional arguments vector
 		if (!parser.exist("stdio")) {
 			std::cerr << "You must provide at least one input file unless specifying"
 					" the --stdio option. See --help\r\n";
@@ -125,7 +130,7 @@ int main(int argc, char* argv[]) {
 				output_file = input_file.substr(idx + 1, input_file.length() - idx);
 
 			// Write to disk
-			chart.write("fixed_" + output_file);
+			chart.write(parser.get<std::string>("output-prefix") + output_file);
 		}
 	}
 	return 0;
