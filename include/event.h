@@ -52,6 +52,7 @@ public:
      * easy serialisation.
      */
     virtual std::string toEventString() const;
+    friend bool operator<(const Event& e0, const Event& e1);
 
     uint32_t time;
     /**
@@ -71,6 +72,8 @@ public:
     std::string toEventString() const override;
     bool isTsChange() const;
     bool isTempoChange() const;
+
+    friend bool operator<(const SyncTrackEvent& e0, const SyncTrackEvent& e1);
 
     uint32_t value;
 };
@@ -99,8 +102,8 @@ public:
     /**
      * Override the < operator to enable std::sort() to work
      */
-    friend bool operator< (const NoteTrackEvent& nte0, const NoteTrackEvent& nte1);
-    
+    friend bool operator<(const NoteTrackEvent& nte0, const NoteTrackEvent& nte1);
+
     /**
      * Note value as decimal
      */
@@ -124,6 +127,7 @@ public:
      */
     void toNoteTrackEvents(std::vector<NoteTrackEvent>& vector) const;
 
+    friend bool operator<(const Note& n0, const Note& n1);
     friend std::ostream& operator<<(std::ostream& os, const Note& n);
 
     uint32_t time;

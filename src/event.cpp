@@ -41,6 +41,18 @@ std::string Event::toEventString() const {
 	return ss.str();
 }
 
+bool operator<(const Event& e0, const Event& e1) {
+	if (e0.time < e1.time)
+		return true;
+	if (e0.time == e1.time) {
+		if (e0.type < e1.type)
+			return true;
+		if (e0.type == e1.type)
+			return (e0.text < e1.text);
+	}
+	return false;
+}
+
 SyncTrackEvent::SyncTrackEvent(uint32_t time, std::string type,
 		uint32_t value) :
 Event(time, type, ""), value(value) {
@@ -63,7 +75,17 @@ bool SyncTrackEvent::isTsChange() const {
 	return type == SYNC_TRACK_EVENT_TYPE_TIMESIG;
 }
 
-
+bool operator<(const SyncTrackEvent& e0, const SyncTrackEvent& e1) {
+	if (e0.time < e1.time)
+		return true;
+	if (e0.time == e1.time) {
+		if (e0.type < e1.type)
+			return true;
+		if (e0.type == e1.type)
+			return (e0.value < e1.value);
+	}
+	return false;
+}
 
 NoteTrackEvent::NoteTrackEvent(uint32_t time, std::string text) :
 Event(time, text), value(0), duration(0) {
@@ -146,6 +168,14 @@ void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) const {
 			continue;
 		vec.push_back(NoteTrackEvent(time, b, duration));
 	}
+}
+
+bool operator<(const Note& n0, const Note& n1) {
+	if (n0.time < n1.time)
+		return true;
+	if (n0.time == n1.time)
+		return (n0.value < n1.value);
+	return false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Note& note) {

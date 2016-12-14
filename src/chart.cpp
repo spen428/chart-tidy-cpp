@@ -311,12 +311,14 @@ void Chart::print() {
 	std::cout << "}" << "\r\n";
 
 	std::cout << "[" << SYNC_TRACK_SECTION << "]" << "\r\n" << "{" << "\r\n";
+	std::sort(syncTrack.begin(), syncTrack.end());
 	for (const SyncTrackEvent& evt : syncTrack) {
 		std::cout << '\t' << evt.toEventString() << "\r\n";
 	}
 	std::cout << "}" << "\r\n";
 
 	std::cout << "[" << EVENTS_SECTION << "]" << "\r\n" << "{" << "\r\n";
+	std::sort(events.begin(), events.end());
 	for (const Event& evt : events) {
 		std::cout << '\t' << evt.toEventString() << "\r\n";
 	}
@@ -328,10 +330,10 @@ void Chart::print() {
 		std::string section = itr0.first;
 		mergeEvents(merged, noteTrackEvents[section], noteTrackNotes[section]);
 
-		std::cout << "[" << section << "]" << "\r\n";
+		std::cout << "[" << section << "]" << "\r\n" << "{" << "\r\n";
 		std::sort(merged.begin(), merged.end());
 		for (const NoteTrackEvent& nte : merged) {
-			std::cout << nte.toEventString() << "\r\n";
+			std::cout << '\t' << nte.toEventString() << "\r\n";
 		}
 		std::cout << "}" << "\r\n";
 		
