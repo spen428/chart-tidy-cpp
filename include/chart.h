@@ -29,8 +29,10 @@ class Chart {
 public:
     Chart();
     ~Chart();
-    bool read(char fpath[]);
-    void print();
+    bool read(std::string fpath);
+    bool read(std::istream& in);
+    bool write(std::string fpath);
+    std::string toString();
 
     // [Song]
     std::string name;
@@ -54,6 +56,10 @@ public:
     std::unordered_map<std::string, std::map<uint32_t, Note>> noteTrackNotes;
     /** Everything else that appears in a note track: star power and track events */
     std::unordered_map<std::string, std::vector<NoteTrackEvent>> noteTrackEvents;
+    
+    std::string track_event_tap;
+    std::string track_event_hopo_flip;
+    unsigned int min_sustain_gap;
 private:
     bool parseSongLine(const std::string& line);
     bool parseSyncTrackLine(const std::string& line);

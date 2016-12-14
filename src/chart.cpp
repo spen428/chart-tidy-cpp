@@ -41,13 +41,23 @@ Chart::Chart() {
 Chart::~Chart() {
 }
 
-bool Chart::read(char fpath[]) {
+bool Chart::read(std::string fpath) {
+	if (fpath == "-") {
+		return read(std::cin);
+	} else {
+		std::ifstream in(fpath);
+		bool success = read(in);
+		in.close();
+		return success;
+	}
+}
+
+bool Chart::read(std::istream& in) {
 	bool errors = false;
 	bool inBlock = false;
-	std::ifstream infile(fpath);
 	std::string section;
 
-	for (std::string line; getline(infile, line);) {
+	for (std::string line; getline(in, line);) {
 		boost::trim(line);
 
 		if (line == "")
@@ -102,10 +112,23 @@ bool Chart::read(char fpath[]) {
 		std::cerr << "Unexpected line: " << line << "\r\n";
 		errors = true;
 	}
-	infile.close();
 	if (!extractNotesFromNoteTrackEvents())
 		errors = true;
 	return !errors;
+}
+
+bool Chart::write(std::string fpath) {
+	if (fpath == "-") {
+		std::cout << toString();
+		std::cout.flush();
+		return true;
+	}
+	// TODO
+	std::ofstream out(fpath);
+	out << toString();
+	out.flush();
+	out.close();
+	return true;
 }
 
 /**
@@ -274,35 +297,36 @@ bool isNoteSection(const std::string& section) {
 			|| boost::ends_with(section, "Keyboard")));
 }
 
-void Chart::print() {
-	std::cout << "[" << SONG_SECTION << "]" << "\r\n" << "{" << "\r\n";
-	std::cout << '\t' << "Name" << " = " << name << "\r\n";
-	std::cout << '\t' << "Artist" << " = " << artist << "\r\n";
-	std::cout << '\t' << "Charter" << " = " << charter << "\r\n";
-	std::cout << '\t' << "Offset" << " = " << offset << "\r\n";
-	std::cout << '\t' << "Resolution" << " = " << resolution << "\r\n";
-	std::cout << '\t' << "Player2" << " = " << player2 << "\r\n";
-	std::cout << '\t' << "Difficulty" << " = " << difficulty << "\r\n";
-	std::cout << '\t' << "PreviewStart" << " = " << previewStart << "\r\n";
-	std::cout << '\t' << "PreviewEnd" << " = " << previewEnd << "\r\n";
-	std::cout << '\t' << "Genre" << " = " << genre << "\r\n";
-	std::cout << '\t' << "MediaType" << " = " << mediaType << "\r\n";
-	std::cout << '\t' << "MusicStream" << " = " << musicStream << "\r\n";
-	std::cout << "}" << "\r\n";
+std::string Chart::toString() {
+	std::stringstream ss;
+	ss << "[" << SONG_SECTION << "]" << "\r\n" << "{" << "\r\n";
+	ss << '\t' << "Name" << " = " << name << "\r\n";
+	ss << '\t' << "Artist" << " = " << artist << "\r\n";
+	ss << '\t' << "Charter" << " = " << charter << "\r\n";
+	ss << '\t' << "Offset" << " = " << offset << "\r\n";
+	ss << '\t' << "Resolution" << " = " << resolution << "\r\n";
+	ss << '\t' << "Player2" << " = " << player2 << "\r\n";
+	ss << '\t' << "Difficulty" << " = " << difficulty << "\r\n";
+	ss << '\t' << "PreviewStart" << " = " << previewStart << "\r\n";
+	ss << '\t' << "PreviewEnd" << " = " << previewEnd << "\r\n";
+	ss << '\t' << "Genre" << " = " << genre << "\r\n";
+	ss << '\t' << "MediaType" << " = " << mediaType << "\r\n";
+	ss << '\t' << "MusicStream" << " = " << musicStream << "\r\n";
+	ss << "}" << "\r\n";
 
-	std::cout << "[" << SYNC_TRACK_SECTION << "]" << "\r\n" << "{" << "\r\n";
+	ss << "[" << SYNC_TRACK_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	std::sort(syncTrack.begin(), syncTrack.end());
 	for (const SyncTrackEvent& evt : syncTrack) {
-		std::cout << '\t' << evt.toEventString() << "\r\n";
+		ss << '\t' << evt.toEventString() << "\r\n";
 	}
-	std::cout << "}" << "\r\n";
+	ss << "}" << "\r\n";
 
-	std::cout << "[" << EVENTS_SECTION << "]" << "\r\n" << "{" << "\r\n";
+	ss << "[" << EVENTS_SECTION << "]" << "\r\n" << "{" << "\r\n";
 	std::sort(events.begin(), events.end());
 	for (const Event& evt : events) {
-		std::cout << '\t' << evt.toEventString() << "\r\n";
+		ss << '\t' << evt.toEventString() << "\r\n";
 	}
-	std::cout << "}" << "\r\n";
+	ss << "}" << "\r\n";
 
 	// Iterate over each note section
 	std::vector<NoteTrackEvent> merged;
@@ -310,15 +334,17 @@ void Chart::print() {
 		std::string section = itr0.first;
 		mergeEvents(merged, noteTrackEvents[section], noteTrackNotes[section]);
 
-		std::cout << "[" << section << "]" << "\r\n" << "{" << "\r\n";
+		ss << "[" << section << "]" << "\r\n" << "{" << "\r\n";
 		std::sort(merged.begin(), merged.end());
 		for (const NoteTrackEvent& nte : merged) {
-			std::cout << '\t' << nte.toEventString() << "\r\n";
+			ss << '\t' << nte.toEventString() << "\r\n";
 		}
-		std::cout << "}" << "\r\n";
+		ss << "}" << "\r\n";
 		
 		merged.clear();
 	}
+
+	return ss.str();
 }
 
 void Chart::mergeEvents(std::vector<NoteTrackEvent>& out, const std::vector<NoteTrackEvent>& nte,

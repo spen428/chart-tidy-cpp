@@ -22,9 +22,6 @@
 #include "FeedBack.h"
 #include "fix.h"
 
-const std::string DEFAULT_NOTE_TRACK_EVENT_TAP = "t";
-const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
-
 void fix::fixAll(Chart& chart) {
 	// TODO
 	fixMissingStartEvent(chart);
@@ -34,7 +31,7 @@ void fix::fixAll(Chart& chart) {
 	// For each note track
 	for (auto it : chart.noteTrackNotes) {
 		std::string section = it.first;
-		fixSustainGap(chart.noteTrackNotes[section]);
+		fixSustainGap(chart.noteTrackNotes[section], chart.min_sustain_gap);
 	}
 }
 
@@ -154,8 +151,7 @@ void fix::fixNoLeadingMeasure(Chart& chart) {
 	std::cerr << (insert_bpmT / 1000) << " BPM" << "\r\n";
 }
 
-void fix::fixSustainGap(std::map<uint32_t, Note>& noteTrack) {
-	const uint32_t min_gap = DURATION_1_32;
+void fix::fixSustainGap(std::map<uint32_t, Note>& noteTrack, const unsigned int min_gap) {
 	/** If the next note is identical, should the fix still be applied? */
 	const bool apply_to_repeat_notes = false;
 	auto it = noteTrack.begin();
@@ -208,12 +204,12 @@ void fix::setNoteFlags(Chart& chart) {
 				continue;
 			}
 			// Convert and add to note track
-			if (evt.text == DEFAULT_NOTE_TRACK_EVENT_TAP) {
+			if (evt.text == chart.track_event_tap) {
 				// Tap event
 				chart.noteTrackNotes[section][evt.time].value |= (1 << NOTE_FLAG_VAL_TAP);
 				std::cerr << "Parsed track event \"" << evt.toEventString() << "\"";
 				std::cerr << " as tap flag" << "\r\n";
-			} else if (evt.text == DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP) {
+			} else if (evt.text == chart.track_event_hopo_flip) {
 				// HOPO flip event
 				chart.noteTrackNotes[section][evt.time].value |= (1 << NOTE_FLAG_VAL_HOPO_FLIP);
 				std::cerr << "Parsed track event \"" << evt.toEventString() << "\"";
@@ -240,13 +236,13 @@ void fix::unsetNoteFlags(Chart& chart) {
 			// Unset flag and add an equivilant track event
 			if (note.isTap()) {
 				note.value ^= (1 << NOTE_FLAG_VAL_TAP);
-				NoteTrackEvent evt = NoteTrackEvent(note.time, DEFAULT_NOTE_TRACK_EVENT_TAP);
+				NoteTrackEvent evt = NoteTrackEvent(note.time, chart.track_event_tap);
 				chart.noteTrackEvents[section].push_back(evt);
 				std::cerr << "Unset tap flag and added track event \"" << evt.toEventString() << "\"\r\n";
 			}
 			if (note.isForce()) {
 				note.value ^= (1 << NOTE_FLAG_VAL_HOPO_FLIP);
-				NoteTrackEvent evt = NoteTrackEvent(note.time, DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP);
+				NoteTrackEvent evt = NoteTrackEvent(note.time, chart.track_event_hopo_flip);
 				chart.noteTrackEvents[section].push_back(evt);
 				std::cerr << "Unset tap flag and added track event \"" << evt.toEventString() << "\"\r\n";
 			}

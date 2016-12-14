@@ -49,7 +49,7 @@ namespace fix {
      * start of a song.
      */
     void fixNoLeadingMeasure(Chart& chart);
-    void fixSustainGap(std::map<uint32_t, Note>& noteTrack);
+    void fixSustainGap(std::map<uint32_t, Note>& noteTrack, const unsigned int min_gap);
     void fixUnequalNoteDurations(std::vector<Note>& fixed, std::vector<NoteTrackEvent> simultaneousNoteEvents);
     /**
      * Automatically inserts star power phrases into the chart.
