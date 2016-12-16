@@ -27,6 +27,7 @@
 
 const std::string DEFAULT_NOTE_TRACK_EVENT_TAP = "t";
 const std::string DEFAULT_NOTE_TRACK_EVENT_HOPO_FLIP = "*";
+const std::string DEFAULT_NOTE_TRACK_EVENT_OPEN_NOTE = "o";
 
 int main(int argc, char* argv[]) {
 	cmdline::parser parser;

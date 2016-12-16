@@ -120,7 +120,7 @@ bool NoteTrackEvent::isNote() const {
 }
 
 bool NoteTrackEvent::isFlag() const {
-	return isNote() && value >= PLAYABLE_NOTE_TOTAL;
+	return isNote() && value > NOTE_FLAG_VAL_ORANGE;
 }
 
 bool NoteTrackEvent::isStarPower() const {
@@ -166,7 +166,8 @@ void Note::toNoteTrackEvents(std::vector<NoteTrackEvent>& vec) const {
 	for (unsigned int b = 0; b < 32; b++) {
 		if (!((value >> b) & 1))
 			continue;
-		if (b >= PLAYABLE_NOTE_TOTAL) // Set duration to 0 for note flags
+		// Set duration to 0 for non-playable note flags
+		if (b > NOTE_FLAG_VAL_ORANGE && b != NOTE_FLAG_VAL_OPEN)
 			vec.push_back(NoteTrackEvent(time, b, 0));
 		else
 			vec.push_back(NoteTrackEvent(time, b, duration));

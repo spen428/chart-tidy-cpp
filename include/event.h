@@ -31,8 +31,8 @@ const unsigned int NOTE_FLAG_VAL_BLUE = 3;
 const unsigned int NOTE_FLAG_VAL_ORANGE = 4;
 const unsigned int NOTE_FLAG_VAL_HOPO_FLIP = 5;
 const unsigned int NOTE_FLAG_VAL_TAP = 6;
-const unsigned int NOTE_FLAG_TOTAL = 7;
-const unsigned int PLAYABLE_NOTE_TOTAL = 5; // GRYBO
+const unsigned int NOTE_FLAG_VAL_OPEN = 7;
+const unsigned int NOTE_FLAG_TOTAL = 8;
 
 const std::string NOTE_TRACK_EVENT_TYPE_EVENT = "E";
 const std::string NOTE_TRACK_EVENT_TYPE_STAR_POWER = "S";
